@@ -30,6 +30,9 @@ func main() {
 		log.Fatal(err)
 	}
 
+	channelProposeMsg := hostAccount.createChannelProposeMsg(guestAccount.keyPair.Address())
+	_ = channelProposeMsg
+
 	if err := hostAccount.fundingTx(guestAccount.keyPair.Address()); err != nil {
 		log.Fatal(err)
 	}
