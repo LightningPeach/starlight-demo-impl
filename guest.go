@@ -50,6 +50,50 @@ func (guest *guestAccount) createRatchetTx(
 	return &txe, nil
 }
 
+func (guest *guestAccount) createSettleOnlyWithHostTx(
+		hostAddress,
+		escrowAddress,
+		guestRatchetAccount,
+		hostRatchetAccount string,
+		fundingTime uint64,
+		roundSequenceNumber int,
+	) (
+		*build.TransactionEnvelopeBuilder,
+		error,
+	) {
+
+	tx, err := build.Transaction(
+		build.TestNetwork,
+		build.SourceAccount{AddressOrSeed: escrowAddress},
+		build.Sequence{Sequence: uint64(roundSequenceNumber) + 2},
+		build.Timebounds{
+			MinTime: fundingTime + 2 * defaultFinalityDelay + defaultMaxRoundDuration,
+		},
+		build.AccountMerge(
+			build.SourceAccount{AddressOrSeed: escrowAddress},
+			build.Destination{AddressOrSeed: hostAddress},
+		),
+		build.AccountMerge(
+			build.SourceAccount{AddressOrSeed: guestRatchetAccount},
+			build.Destination{AddressOrSeed: hostAddress},
+		),
+		build.AccountMerge(
+			build.SourceAccount{AddressOrSeed: hostRatchetAccount},
+			build.Destination{AddressOrSeed: hostAddress},
+		),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	txe, err := tx.Sign(guest.keyPair.Seed())
+	if err != nil {
+		return nil, err
+	}
+
+	return &txe, nil
+}
+
 func (guest *guestAccount) receiveChannelProposeMsg(msg *ChannelProposeMsg) (*ChannelAcceptMsg, error) {
 	baseSequenceNumber, err := loadSequenceNumber(msg.ChannelID)
 	if err != nil {
