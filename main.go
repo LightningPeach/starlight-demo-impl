@@ -25,6 +25,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	fmt.Println("creating guest account:")
 	guestAccount, err := newGuestAccount()
 	if err != nil {
 		log.Fatal(err)
