@@ -21,13 +21,13 @@ func newGuestAccount() (*guestAccount, error) {
 }
 
 func (guest *guestAccount) createRatchetTx(
-		hostRatchetAddress string,
-		paymentTime uint64,
-		roundSequenceNumber int,
-	) (
-		*build.TransactionEnvelopeBuilder,
-		error,
-	) {
+	hostRatchetAddress string,
+	paymentTime uint64,
+	roundSequenceNumber int,
+) (
+	*build.TransactionEnvelopeBuilder,
+	error,
+) {
 
 	tx, err := build.Transaction(
 		build.TestNetwork,
@@ -36,7 +36,7 @@ func (guest *guestAccount) createRatchetTx(
 		build.Timebounds{
 			MaxTime: paymentTime + defaultFinalityDelay + defaultMaxRoundDuration,
 		},
-		build.BumpSequence(build.BumpTo(roundSequenceNumber + 1)),
+		build.BumpSequence(build.BumpTo(roundSequenceNumber+1)),
 	)
 	if err != nil {
 		return nil, err
@@ -51,23 +51,23 @@ func (guest *guestAccount) createRatchetTx(
 }
 
 func (guest *guestAccount) createSettleOnlyWithHostTx(
-		hostAddress,
-		escrowAddress,
-		guestRatchetAccount,
-		hostRatchetAccount string,
-		fundingTime uint64,
-		roundSequenceNumber int,
-	) (
-		*build.TransactionEnvelopeBuilder,
-		error,
-	) {
+	hostAddress,
+	escrowAddress,
+	guestRatchetAccount,
+	hostRatchetAccount string,
+	fundingTime uint64,
+	roundSequenceNumber int,
+) (
+	*build.TransactionEnvelopeBuilder,
+	error,
+) {
 
 	tx, err := build.Transaction(
 		build.TestNetwork,
 		build.SourceAccount{AddressOrSeed: escrowAddress},
 		build.Sequence{Sequence: uint64(roundSequenceNumber) + 2},
 		build.Timebounds{
-			MinTime: fundingTime + 2 * defaultFinalityDelay + defaultMaxRoundDuration,
+			MinTime: fundingTime + 2*defaultFinalityDelay + defaultMaxRoundDuration,
 		},
 		build.AccountMerge(
 			build.SourceAccount{AddressOrSeed: escrowAddress},
@@ -106,10 +106,19 @@ func (guest *guestAccount) receiveChannelProposeMsg(msg *ChannelProposeMsg) (*Ch
 		return nil, err
 	}
 
+	settleOnlyWithHostTx, err := guest.createSettleOnlyWithHostTx(
+		msg.HostAccount,
+		msg.ChannelID,
+		msg.GuestRatchetAccount,
+		msg.HostRatchetAccount,
+		msg.FundingTime,
+		rsn,
+	)
+
 	return &ChannelAcceptMsg{
-		ChannelID: msg.ChannelID,
-		GuestRatchetRound1Sig: ratchetTx,
-		// GuestSettleOnlyWithHostSig
+		ChannelID:                  msg.ChannelID,
+		GuestRatchetRound1Sig:      ratchetTx,
+		GuestSettleOnlyWithHostSig: settleOnlyWithHostTx,
 	}, nil
 }
 

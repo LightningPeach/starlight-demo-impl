@@ -18,5 +18,5 @@ type ChannelProposeMsg struct {
 type ChannelAcceptMsg struct {
 	ChannelID                  string
 	GuestRatchetRound1Sig      *build.TransactionEnvelopeBuilder // TODO(evg): use only sig instead of whole signed tx
-	GuestSettleOnlyWithHostSig string
+	GuestSettleOnlyWithHostSig *build.TransactionEnvelopeBuilder // TODO(evg): use only sig instead of whole signed tx
 }
