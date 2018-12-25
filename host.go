@@ -9,6 +9,25 @@ import (
 	"time"
 )
 
+const (
+	defaultMaxRoundDuration = 3600
+	defaultFinalityDelay    = 3600
+	defaultFeerate          = "undefined"
+	defaultHostAmount       = "42"
+)
+
+func getBlockChainTime() uint64 {
+	return uint64(time.Now().Unix())
+}
+
+type accountType uint8
+
+const (
+	hostRatchetAccount accountType = iota
+	guestRatchetAccount
+	escrowAccount
+)
+
 type hostAccount struct {
 	selfKeyPair *keypair.Full
 
@@ -48,23 +67,25 @@ func newHostAccount() (*hostAccount, error) {
 	}, nil
 }
 
-func (host *hostAccount) setupAccountTx() error {
+func (host *hostAccount) setupAccountTx(account accountType) error {
+	var dest string
+	switch account {
+	case hostRatchetAccount:
+		dest = host.hostRatchetAccount.keyPair.Address()
+	case guestRatchetAccount:
+		dest = host.guestRatchetAccount.keyPair.Address()
+	case escrowAccount:
+		dest = host.escrowKeyPair.Address()
+	}
+
 	tx, err := build.Transaction(
 		build.TestNetwork,
-		build.SourceAccount{host.selfKeyPair.Address()},
+		build.SourceAccount{AddressOrSeed: host.selfKeyPair.Address()},
 		// build.AutoSequence{horizon.DefaultTestNetClient},
 		build.Sequence{Sequence: uint64(host.loadSequenceNumber()) + 1},
 		build.CreateAccount(
-			build.Destination{host.escrowKeyPair.Address()},
-			build.NativeAmount{"1"},
-		),
-		build.CreateAccount(
-			build.Destination{host.hostRatchetAccount.keyPair.Address()},
-			build.NativeAmount{"1"},
-		),
-		build.CreateAccount(
-			build.Destination{host.guestRatchetAccount.keyPair.Address()},
-			build.NativeAmount{"1"},
+			build.Destination{AddressOrSeed: dest},
+			build.NativeAmount{Amount: "1"},
 		),
 	)
 	if err != nil {
@@ -81,11 +102,13 @@ func (host *hostAccount) setupAccountTx() error {
 		return err
 	}
 
-	sequence, err := loadSequenceNumber(host.escrowKeyPair.Address())
-	if err != nil {
-		return err
+	if account == escrowAccount {
+		sequence, err := loadSequenceNumber(host.escrowKeyPair.Address())
+		if err != nil {
+			return err
+		}
+		host.baseSequenceNumber = sequence
 	}
-	host.baseSequenceNumber = sequence
 	return nil
 }
 
@@ -168,8 +191,6 @@ func (host *hostAccount) fundingTx(guestEscrowPubKey string) error {
 
 func (host *hostAccount) cleanupTx() {}
 
-
-
 func (host *hostAccount) publishTx(txe *build.TransactionEnvelopeBuilder) error {
 	txeB64, err := txe.Base64()
 	if err != nil {
@@ -187,6 +208,21 @@ func (host *hostAccount) publishTx(txe *build.TransactionEnvelopeBuilder) error 
 	fmt.Println("Hash:", resp.Hash)
 
 	return nil
+}
+
+func (host *hostAccount) createChannelProposeMsg(guestEscrowPubKey string) *ChannelProposeMsg {
+	return &ChannelProposeMsg{
+		ChannelID:           host.escrowKeyPair.Address(),
+		GuestEscrowPubKey:   guestEscrowPubKey,
+		HostRatchetAccount:  host.hostRatchetAccount.keyPair.Address(),
+		GuestRatchetAccount: host.guestRatchetAccount.keyPair.Address(),
+		MaxRoundDuration:    defaultMaxRoundDuration,
+		FinalityDelay:       defaultFinalityDelay,
+		Feerate:             defaultFeerate,
+		HostAmount:          defaultHostAmount,
+		FundingTime:         getBlockChainTime(),
+		HostAccount:         host.selfKeyPair.Address(),
+	}
 }
 
 func (host *hostAccount) loadSequenceNumber() int {

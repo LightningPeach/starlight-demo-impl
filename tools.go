@@ -9,6 +9,11 @@ import (
 	"strconv"
 )
 
+// RoundSequenceNumber is defined as BaseSequenceNumber + RoundNumber * 4
+func roundSequenceNumber(baseSequenceNumber, roundNumber int) int {
+	return baseSequenceNumber + roundNumber * 4
+}
+
 func loadSequenceNumber(address string) (int, error) {
 	account, err := horizon.DefaultTestNetClient.LoadAccount(address)
 	if err != nil {

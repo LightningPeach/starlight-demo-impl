@@ -16,7 +16,13 @@ func main() {
 	}
 
 	fmt.Println("creating channel accounts:")
-	if err := hostAccount.setupAccountTx(); err != nil {
+	if err := hostAccount.setupAccountTx(hostRatchetAccount); err != nil {
+		log.Fatal(err)
+	}
+	if err := hostAccount.setupAccountTx(guestRatchetAccount); err != nil {
+		log.Fatal(err)
+	}
+	if err := hostAccount.setupAccountTx(escrowAccount); err != nil {
 		log.Fatal(err)
 	}
 
