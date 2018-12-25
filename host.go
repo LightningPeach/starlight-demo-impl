@@ -15,6 +15,8 @@ type hostAccount struct {
 	escrowKeyPair       *keypair.Full
 	hostRatchetAccount  *ratchetAccount
 	guestRatchetAccount *ratchetAccount
+
+	baseSequenceNumber int
 }
 
 func newHostAccount() (*hostAccount, error) {
@@ -75,7 +77,16 @@ func (host *hostAccount) setupAccountTx() error {
 		return err
 	}
 
-	return host.publishTx(&txe)
+	if err := host.publishTx(&txe); err != nil {
+		return err
+	}
+
+	sequence, err := loadSequenceNumber(host.escrowKeyPair.Address())
+	if err != nil {
+		return err
+	}
+	host.baseSequenceNumber = sequence
+	return nil
 }
 
 // TODO(evg): minTime/maxTime
@@ -156,6 +167,8 @@ func (host *hostAccount) fundingTx(guestEscrowPubKey string) error {
 }
 
 func (host *hostAccount) cleanupTx() {}
+
+
 
 func (host *hostAccount) publishTx(txe *build.TransactionEnvelopeBuilder) error {
 	txeB64, err := txe.Base64()
