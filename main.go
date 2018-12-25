@@ -33,12 +33,16 @@ func main() {
 
 	channelProposeMsg := hostAccount.createChannelProposeMsg(guestAccount.keyPair.Address())
 
-	_, err = guestAccount.receiveChannelProposeMsg(channelProposeMsg)
+	channelAcceptMsg, err := guestAccount.receiveChannelProposeMsg(channelProposeMsg)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	if err := hostAccount.fundingTx(guestAccount.keyPair.Address()); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := hostAccount.ratchetTx(channelAcceptMsg.GuestRatchetRound1Sig); err != nil {
 		log.Fatal(err)
 	}
 }

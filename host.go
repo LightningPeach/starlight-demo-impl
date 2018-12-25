@@ -191,6 +191,26 @@ func (host *hostAccount) fundingTx(guestEscrowPubKey string) error {
 
 func (host *hostAccount) cleanupTx() {}
 
+func (host *hostAccount) ratchetTx(ratchetTx *build.TransactionEnvelopeBuilder) error {
+	ratchetTx.Mutate(build.Sign{Seed: host.escrowKeyPair.Seed()})
+	ratchetTx.Mutate(build.Sign{Seed: host.hostRatchetAccount.keyPair.Seed()})
+	if err := host.publishTx(ratchetTx); err != nil {
+		fmt.Println("tx fail")
+		err2 := err.(*horizon.Error).Problem
+		fmt.Println("Type: ",     err2.Type)
+		fmt.Println("Title: ",    err2.Title)
+		fmt.Println("Status: ",   err2.Status)
+		fmt.Println("Detail:",    err2.Detail)
+		fmt.Println("Instance: ", err2.Instance)
+		for key, value := range err2.Extras {
+			fmt.Println("KEYVALUE: ", key, string(value))
+		}
+		// fmt.Println("Extras: ",   err2.Extras)
+		return err
+	}
+	return nil
+}
+
 func (host *hostAccount) publishTx(txe *build.TransactionEnvelopeBuilder) error {
 	txeB64, err := txe.Base64()
 	if err != nil {

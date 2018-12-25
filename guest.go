@@ -21,22 +21,30 @@ func newGuestAccount() (*guestAccount, error) {
 }
 
 func (guest *guestAccount) createRatchetTx(
-	hostRatchetAddress string,
+	hostRatchetAddress,
+	escrowAddress string,
 	paymentTime uint64,
 	roundSequenceNumber int,
 ) (
 	*build.TransactionEnvelopeBuilder,
 	error,
 ) {
+	sequenceNumber, err := loadSequenceNumber(hostRatchetAddress)
+	if err != nil {
+		return nil, err
+	}
 
 	tx, err := build.Transaction(
 		build.TestNetwork,
 		build.SourceAccount{AddressOrSeed: hostRatchetAddress},
-		build.Sequence{Sequence: uint64(guest.loadSequenceNumber()) + 1},
+		build.Sequence{Sequence: uint64(sequenceNumber) + 1},
 		build.Timebounds{
 			MaxTime: paymentTime + defaultFinalityDelay + defaultMaxRoundDuration,
 		},
-		build.BumpSequence(build.BumpTo(roundSequenceNumber+1)),
+		build.BumpSequence(
+			build.SourceAccount{AddressOrSeed: escrowAddress},
+			build.BumpTo(roundSequenceNumber+1),
+		),
 	)
 	if err != nil {
 		return nil, err
@@ -101,7 +109,7 @@ func (guest *guestAccount) receiveChannelProposeMsg(msg *ChannelProposeMsg) (*Ch
 	}
 	rsn := roundSequenceNumber(baseSequenceNumber, 1)
 
-	ratchetTx, err := guest.createRatchetTx(msg.HostRatchetAccount, msg.FundingTime, rsn)
+	ratchetTx, err := guest.createRatchetTx(msg.HostRatchetAccount, msg.ChannelID, msg.FundingTime, rsn)
 	if err != nil {
 		return nil, err
 	}
