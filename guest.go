@@ -11,7 +11,7 @@ type guestAccount struct {
 }
 
 func newGuestAccount() (*guestAccount, error) {
-	keyPair, err := keypair.Random()
+	keyPair, err := createAccount()
 	if err != nil {
 		return nil, err
 	}
