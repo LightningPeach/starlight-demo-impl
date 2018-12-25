@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/stellar/go/keypair"
 	"log"
 )
 
@@ -26,12 +25,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	pair, err := keypair.Random()
+	guestAccount, err := newGuestAccount()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err := hostAccount.fundingTx(pair.Address()); err != nil {
+	if err := hostAccount.fundingTx(guestAccount.keyPair.Address()); err != nil {
 		log.Fatal(err)
 	}
 }
