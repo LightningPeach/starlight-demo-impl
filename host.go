@@ -376,15 +376,34 @@ func (host *hostAccount) createChannelProposeMsg(guestEscrowPubKey string) *Chan
 	}
 }
 
-func (host *hostAccount) createPaymentProposeMsg(roundNumber int, paymentTime uint64) *PaymentProposeMsg {
-	return &PaymentProposeMsg{
-		ChannelID:     host.selfKeyPair.Address(),
-		RoundNumber:   roundNumber,
-		PaymentTime:   paymentTime,
-		PaymentAmount: defaultPaymentAmount,
-		//SenderSettleWithGuestSig string
-		//SenderSettleWithHostSig  string
+func (host *hostAccount) createPaymentProposeMsg(roundNumber int, guestAddress string) (*PaymentProposeMsg, error) {
+	//  rsn,
+	//	paymentTime uint64,
+	//	guestAddress,
+	//	guestAmount string,
+	rsn := roundSequenceNumber(host.baseSequenceNumber, roundNumber)
+	paymentTime := getBlockChainTime()
+
+	settleWithGuestTx, err := host.createSettleWithGuestTx(uint64(rsn), paymentTime, guestAddress, defaultPaymentAmount)
+	if err != nil {
+		return nil, err
 	}
+
+	// rsn,
+	// paymentTime uint64
+	settleWithHostTx, err := host.createSettleWithHostTx(uint64(rsn), paymentTime)
+	if err != nil {
+		return nil, err
+	}
+
+	return &PaymentProposeMsg{
+		ChannelID:                host.selfKeyPair.Address(),
+		RoundNumber:              roundNumber,
+		PaymentTime:              paymentTime,
+		PaymentAmount:            defaultPaymentAmount,
+		SenderSettleWithGuestSig: settleWithGuestTx,
+		SenderSettleWithHostSig:  settleWithHostTx,
+	}, nil
 }
 
 func (host *hostAccount) loadSequenceNumber() int {
