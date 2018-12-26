@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"github.com/stellar/go/clients/horizon"
 	"github.com/stellar/go/keypair"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -26,14 +26,22 @@ func loadSequenceNumber(address string) (int, error) {
 	return sequenceNumber, nil
 }
 
+func loadBalance(address string) string {
+	account, err := horizon.DefaultTestNetClient.LoadAccount(address)
+	if err != nil {
+		log.Fatal(escrowAccount)
+	}
+	return account.Balances[0].Balance
+}
+
 func createAccount() (*keypair.Full, error) {
 	pair, err := keypair.Random()
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println(pair.Seed())
-	fmt.Println(pair.Address())
+	//fmt.Println(pair.Seed())
+	//fmt.Println(pair.Address())
 
 	address := pair.Address()
 	resp, err := http.Get("https://friendbot.stellar.org/?addr=" + address)

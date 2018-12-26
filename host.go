@@ -31,6 +31,19 @@ const (
 	escrowAccount
 )
 
+func (account accountType) String() string {
+	switch account {
+	case hostRatchetAccount:
+		return "<host_ratchet_account>"
+	case guestRatchetAccount:
+		return "<guest_ratchet_account>"
+	case escrowAccount:
+		return "<escrow_account>"
+	default:
+		return "<unknown>"
+	}
+}
+
 type hostAccount struct {
 	selfKeyPair *keypair.Full
 
@@ -267,9 +280,10 @@ func (host *hostAccount) publishTx(txe *build.TransactionEnvelopeBuilder) error 
 		return err
 	}
 
-	fmt.Println("Successful Transaction:")
-	fmt.Println("Ledger:", resp.Ledger)
-	fmt.Println("Hash:", resp.Hash)
+	//fmt.Println("Successful Transaction:")
+	//fmt.Println("Ledger:", resp.Ledger)
+	//fmt.Println("Hash:", resp.Hash)
+	_ = resp
 
 	return nil
 }
@@ -295,4 +309,8 @@ func (host *hostAccount) loadSequenceNumber() int {
 		log.Fatal(err)
 	}
 	return sequenceNumber
+}
+
+func (host *hostAccount) loadBalance() string {
+	return loadBalance(host.selfKeyPair.Address())
 }
