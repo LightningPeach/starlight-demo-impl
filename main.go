@@ -65,14 +65,17 @@ func main() {
 	//escrowAddress,
 	//hostRatchetAddress string,
 	//bsn int64,
-	guestAccount.receivePaymentProposeMsg(
+	paymentAcceptMsg, err := guestAccount.receivePaymentProposeMsg(
 		paymentProposeMsg,
 		hostAccount.escrowKeyPair.Address(),
 		hostAccount.hostRatchetAccount.keyPair.Address(),
 		int64(hostAccount.baseSequenceNumber),
 	)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	_ = paymentProposeMsg
+	_ = paymentAcceptMsg
 
 	//fmt.Println("publish ratchetTx")
 	//if err := hostAccount.ratchetTx(channelAcceptMsg.GuestRatchetRound1Sig); err != nil {
