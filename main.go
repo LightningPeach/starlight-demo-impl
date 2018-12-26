@@ -61,6 +61,17 @@ func main() {
 		log.Fatal(err)
 	}
 
+	//msg *PaymentProposeMsg,
+	//escrowAddress,
+	//hostRatchetAddress string,
+	//bsn int64,
+	guestAccount.receivePaymentProposeMsg(
+		paymentProposeMsg,
+		hostAccount.escrowKeyPair.Address(),
+		hostAccount.hostRatchetAccount.keyPair.Address(),
+		int64(hostAccount.baseSequenceNumber),
+	)
+
 	_ = paymentProposeMsg
 
 	//fmt.Println("publish ratchetTx")

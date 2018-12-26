@@ -180,24 +180,30 @@ func (guest *guestAccount) receivePaymentProposeMsg(
 	msg *PaymentProposeMsg,
 	escrowAddress,
 	hostRatchetAddress string,
-	paymentTime uint64,
-	rsn int64,
+	bsn int64,
 ) (*PaymentAcceptMsg, error) {
 	// escrowAddress,
 	// hostRatchetAddress string,
 	// paymentTime uint64,
 	// rsn int64,
-	ratchetTxForOffChainPayment, err := guest.createRatchetTxForOffChainPayment(escrowAddress, hostRatchetAddress, paymentTime, rsn)
+	rsn := roundSequenceNumber(int(bsn), msg.RoundNumber)
+	ratchetTxForOffChainPayment, err := guest.createRatchetTxForOffChainPayment(escrowAddress, hostRatchetAddress, msg.PaymentTime, int64(rsn))
 	if err != nil {
 		return nil, err
 	}
 
+	copyTxGuest := msg.SenderSettleWithGuestSig
+	copyTxGuest.Mutate(build.Sign{Seed: guest.keyPair.Seed()})
+
+	copyTxHost := msg.SenderSettleWithHostSig
+	copyTxHost.Mutate(build.Sign{Seed: guest.keyPair.Seed()})
+
 	return &PaymentAcceptMsg{
-		ChannelID:           msg.ChannelID,
-		RoundNumber:         msg.RoundNumber,
-		RecipientRatchetSig: ratchetTxForOffChainPayment,
-		//RecipientSettleWithGuestSig *build.TransactionEnvelopeBuilder
-		//RecipientSettleWithHostSig  *build.TransactionEnvelopeBuilder
+		ChannelID:                   msg.ChannelID,
+		RoundNumber:                 msg.RoundNumber,
+		RecipientRatchetSig:         ratchetTxForOffChainPayment,
+		RecipientSettleWithGuestSig: copyTxGuest,
+		RecipientSettleWithHostSig:  copyTxHost,
 	}, nil
 }
 
