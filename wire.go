@@ -29,3 +29,11 @@ type PaymentProposeMsg struct {
 	SenderSettleWithGuestSig *build.TransactionEnvelopeBuilder // (or empty)
 	SenderSettleWithHostSig  *build.TransactionEnvelopeBuilder
 }
+
+type PaymentAcceptMsg struct {
+	ChannelID                   string
+	RoundNumber                 int
+	RecipientRatchetSig         *build.TransactionEnvelopeBuilder
+	RecipientSettleWithGuestSig *build.TransactionEnvelopeBuilder
+	RecipientSettleWithHostSig  *build.TransactionEnvelopeBuilder
+}

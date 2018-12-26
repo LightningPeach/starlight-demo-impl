@@ -56,6 +56,13 @@ func main() {
 
 	fmt.Printf("host account's balance(before force close): %v\n\n", hostAccount.loadBalance())
 
+	paymentProposeMsg, err := hostAccount.createPaymentProposeMsg(1, guestAccount.keyPair.Address())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_ = paymentProposeMsg
+
 	//fmt.Println("publish ratchetTx")
 	//if err := hostAccount.ratchetTx(channelAcceptMsg.GuestRatchetRound1Sig); err != nil {
 	//	log.Fatal(err)
