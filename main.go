@@ -49,7 +49,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	time.Sleep((2*defaultFinalityDelay + defaultMaxRoundDuration) * time.Second)
+	time.Sleep((2*defaultFinalityDelay + defaultMaxRoundDuration) * time.Second + 10 * time.Second)
+	fmt.Println("time.Now(): ", time.Now().Unix())
 
 	fmt.Println("settleOnlyWithHostTx")
 	if err := hostAccount.settleOnlyWithHostTx(channelAcceptMsg.GuestSettleOnlyWithHostSig); err != nil {

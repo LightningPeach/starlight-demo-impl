@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/stellar/go/build"
 	"github.com/stellar/go/keypair"
 	"log"
@@ -93,6 +94,7 @@ func (guest *guestAccount) createSettleOnlyWithHostTx(
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("createSettleOnlyWithHostTx.MinTime", fundingTime + 2*defaultFinalityDelay + defaultMaxRoundDuration)
 
 	txe, err := tx.Sign(guest.keyPair.Seed())
 	if err != nil {
