@@ -225,10 +225,10 @@ func (host *hostAccount) ratchetTx(ratchetTx *build.TransactionEnvelopeBuilder) 
 	if err := host.publishTx(ratchetTx); err != nil {
 		fmt.Println("tx fail")
 		err2 := err.(*horizon.Error).Problem
-		fmt.Println("Type: ",     err2.Type)
-		fmt.Println("Title: ",    err2.Title)
-		fmt.Println("Status: ",   err2.Status)
-		fmt.Println("Detail:",    err2.Detail)
+		fmt.Println("Type: ", err2.Type)
+		fmt.Println("Title: ", err2.Title)
+		fmt.Println("Status: ", err2.Status)
+		fmt.Println("Detail:", err2.Detail)
 		fmt.Println("Instance: ", err2.Instance)
 		for key, value := range err2.Extras {
 			fmt.Println("KEYVALUE: ", key, string(value))
@@ -254,10 +254,10 @@ func (host *hostAccount) settleOnlyWithHostTx(settleOnlyWithHostTx *build.Transa
 	if err := host.publishTx(settleOnlyWithHostTx); err != nil {
 		fmt.Println("tx fail")
 		err2 := err.(*horizon.Error).Problem
-		fmt.Println("Type: ",     err2.Type)
-		fmt.Println("Title: ",    err2.Title)
-		fmt.Println("Status: ",   err2.Status)
-		fmt.Println("Detail:",    err2.Detail)
+		fmt.Println("Type: ", err2.Type)
+		fmt.Println("Title: ", err2.Title)
+		fmt.Println("Status: ", err2.Status)
+		fmt.Println("Detail:", err2.Detail)
 		fmt.Println("Instance: ", err2.Instance)
 		for key, value := range err2.Extras {
 			fmt.Println("KEYVALUE: ", key, string(value))
@@ -266,6 +266,42 @@ func (host *hostAccount) settleOnlyWithHostTx(settleOnlyWithHostTx *build.Transa
 		return err
 	}
 	return nil
+}
+
+// TODO(evg): try to submit it
+func (host *hostAccount) createSettleWithGuestTx(
+	rsn,
+	paymentTime uint64,
+	guestAddress,
+	guestAmount string,
+) (
+	*build.TransactionEnvelopeBuilder,
+	error,
+) {
+
+	tx, err := build.Transaction(
+		build.TestNetwork,
+		build.SourceAccount{AddressOrSeed: host.escrowKeyPair.Address()},
+		build.Sequence{Sequence: rsn + 2},
+		build.Timebounds{
+			MinTime: paymentTime + 2*defaultFinalityDelay + defaultMaxRoundDuration,
+		},
+		// Pay GuestAmount from EscrowAccount to GuestAccount
+		build.Payment(
+			build.Destination{AddressOrSeed: guestAddress},
+			build.NativeAmount{Amount: guestAmount},
+		),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	txe, err := tx.Sign(host.escrowKeyPair.Seed())
+	if err != nil {
+		return nil, err
+	}
+
+	return &txe, nil
 }
 
 func (host *hostAccount) publishTx(txe *build.TransactionEnvelopeBuilder) error {
