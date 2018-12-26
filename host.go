@@ -173,6 +173,7 @@ func (host *hostAccount) fundingTx(guestEscrowPubKey string) error {
 			build.NativeAmount{Amount: "0.50001"},
 		),
 		build.SetOptions(
+			build.SourceAccount{AddressOrSeed: host.hostRatchetAccount.keyPair.Address()},
 			build.MasterWeight(0),
 			build.Signer{
 				Address: host.escrowKeyPair.Address(),
@@ -185,7 +186,12 @@ func (host *hostAccount) fundingTx(guestEscrowPubKey string) error {
 	}
 
 	// Sign the transaction to prove you are actually the person sending it.
-	txe, err := tx.Sign(host.selfKeyPair.Seed(), host.escrowKeyPair.Seed(), host.guestRatchetAccount.keyPair.Seed())
+	txe, err := tx.Sign(
+		host.selfKeyPair.Seed(),
+		host.escrowKeyPair.Seed(),
+		host.hostRatchetAccount.keyPair.Seed(),
+		host.guestRatchetAccount.keyPair.Seed(),
+	)
 	if err != nil {
 		return err
 	}
@@ -199,9 +205,9 @@ func (host *hostAccount) ratchetTx(ratchetTx *build.TransactionEnvelopeBuilder) 
 	if err := ratchetTx.Mutate(build.Sign{Seed: host.escrowKeyPair.Seed()}); err != nil {
 		return err
 	}
-	if err := ratchetTx.Mutate(build.Sign{Seed: host.hostRatchetAccount.keyPair.Seed()}); err != nil {
-		return err
-	}
+	//if err := ratchetTx.Mutate(build.Sign{Seed: host.hostRatchetAccount.keyPair.Seed()}); err != nil {
+	//	return err
+	//}
 
 	if err := host.publishTx(ratchetTx); err != nil {
 		fmt.Println("tx fail")
@@ -225,9 +231,9 @@ func (host *hostAccount) settleOnlyWithHostTx(settleOnlyWithHostTx *build.Transa
 		return err
 	}
 	// TODO(evg): remove it signer??
-	if err := settleOnlyWithHostTx.Mutate(build.Sign{Seed: host.hostRatchetAccount.keyPair.Seed()}); err != nil {
-		return err
-	}
+	//if err := settleOnlyWithHostTx.Mutate(build.Sign{Seed: host.hostRatchetAccount.keyPair.Seed()}); err != nil {
+	//	return err
+	//}
 	//if err := settleOnlyWithHostTx.Mutate(build.Sign{Seed: host.guestRatchetAccount.keyPair.Seed()}); err != nil {
 	//	return err
 	//}

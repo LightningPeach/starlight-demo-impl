@@ -39,16 +39,19 @@ func main() {
 		log.Fatal(err)
 	}
 
+	fmt.Println("fundingTx")
 	if err := hostAccount.fundingTx(guestAccount.keyPair.Address()); err != nil {
 		log.Fatal(err)
 	}
 
+	fmt.Println("ratchetTx")
 	if err := hostAccount.ratchetTx(channelAcceptMsg.GuestRatchetRound1Sig); err != nil {
 		log.Fatal(err)
 	}
 
 	time.Sleep((2*defaultFinalityDelay + defaultMaxRoundDuration) * time.Second)
 
+	fmt.Println("settleOnlyWithHostTx")
 	if err := hostAccount.settleOnlyWithHostTx(channelAcceptMsg.GuestSettleOnlyWithHostSig); err != nil {
 		log.Fatal(err)
 	}
