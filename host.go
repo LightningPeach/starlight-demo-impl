@@ -304,6 +304,42 @@ func (host *hostAccount) createSettleWithGuestTx(
 	return &txe, nil
 }
 
+// TODO(evg): try to submit it
+func (host *hostAccount) createSettleWithHostTx(rsn, paymentTime uint64) (*build.TransactionEnvelopeBuilder, error) {
+	tx, err := build.Transaction(
+		build.TestNetwork,
+		build.SourceAccount{AddressOrSeed: host.escrowKeyPair.Address()},
+		build.Sequence{Sequence: rsn + 3},
+		build.Timebounds{
+			MinTime: paymentTime + 2 * defaultFinalityDelay + defaultMaxRoundDuration,
+		},
+		//Merge account EscrowAccount to HostAccount
+		//Merge account GuestRatchetAccount to HostAccount
+		//Merge account HostRatchetAccount to HostAccount
+		build.AccountMerge(
+			build.SourceAccount{AddressOrSeed: host.escrowKeyPair.Address()},
+			build.Destination{AddressOrSeed: host.selfKeyPair.Address()},
+		),
+		build.AccountMerge(
+			build.SourceAccount{AddressOrSeed: host.guestRatchetAccount.keyPair.Address()},
+			build.Destination{AddressOrSeed: host.selfKeyPair.Address()},
+		),
+		build.AccountMerge(
+			build.SourceAccount{AddressOrSeed: host.hostRatchetAccount.keyPair.Address()},
+			build.Destination{AddressOrSeed: host.selfKeyPair.Address()},
+		),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	txe, err := tx.Sign(host.escrowKeyPair.Seed())
+	if err != nil {
+		return nil, err
+	}
+	return &txe, nil
+}
+
 func (host *hostAccount) publishTx(txe *build.TransactionEnvelopeBuilder) error {
 	txeB64, err := txe.Base64()
 	if err != nil {
