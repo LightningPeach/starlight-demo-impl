@@ -55,6 +55,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	fmt.Printf("host account's balance(before force close): %v\n\n", hostAccount.loadBalance())
+
 	fmt.Println("publish ratchetTx")
 	if err := hostAccount.ratchetTx(channelAcceptMsg.GuestRatchetRound1Sig); err != nil {
 		log.Fatal(err)
@@ -67,4 +69,6 @@ func main() {
 	if err := hostAccount.settleOnlyWithHostTx(channelAcceptMsg.GuestSettleOnlyWithHostSig); err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Printf("host account's balance(after force close): %v\n\n", hostAccount.loadBalance())
 }
