@@ -10,10 +10,13 @@ import (
 )
 
 const (
-	defaultMaxRoundDuration = 3600
-	defaultFinalityDelay    = 3600
+	defaultMaxRoundDuration = 10
+	defaultFinalityDelay    = 10
 	defaultFeerate          = "undefined"
 	defaultHostAmount       = "42"
+
+	baseFee = 0.00001
+	feeRate = baseFee
 )
 
 func getBlockChainTime() uint64 {
@@ -132,7 +135,8 @@ func (host *hostAccount) fundingTx(guestEscrowPubKey string) error {
 		// Escrow Account
 		build.Payment(
 			build.Destination{AddressOrSeed: host.escrowKeyPair.Address()},
-			build.NativeAmount{Amount: "0.5"},
+			// build.NativeAmount{Amount: strconv.Itoa(0.5 + 8 * feeRate)},
+			build.NativeAmount{Amount: "0.50008"},
 		),
 		build.SetOptions(
 			build.SourceAccount{AddressOrSeed: host.escrowKeyPair.Address()},
@@ -145,7 +149,7 @@ func (host *hostAccount) fundingTx(guestEscrowPubKey string) error {
 		// GuestRatchetAccount
 		build.Payment(
 			build.Destination{AddressOrSeed: host.guestRatchetAccount.keyPair.Address()},
-			build.NativeAmount{Amount: "1"},
+			build.NativeAmount{Amount: "1.00001"},
 		),
 		build.SetOptions(
 			build.SourceAccount{AddressOrSeed: host.guestRatchetAccount.keyPair.Address()},
@@ -166,7 +170,7 @@ func (host *hostAccount) fundingTx(guestEscrowPubKey string) error {
 		// HostRatchetAccount
 		build.Payment(
 			build.Destination{AddressOrSeed: host.hostRatchetAccount.keyPair.Address()},
-			build.NativeAmount{Amount: "0.5"},
+			build.NativeAmount{Amount: "0.50001"},
 		),
 		build.SetOptions(
 			build.MasterWeight(0),
@@ -192,9 +196,43 @@ func (host *hostAccount) fundingTx(guestEscrowPubKey string) error {
 func (host *hostAccount) cleanupTx() {}
 
 func (host *hostAccount) ratchetTx(ratchetTx *build.TransactionEnvelopeBuilder) error {
-	ratchetTx.Mutate(build.Sign{Seed: host.escrowKeyPair.Seed()})
-	ratchetTx.Mutate(build.Sign{Seed: host.hostRatchetAccount.keyPair.Seed()})
+	if err := ratchetTx.Mutate(build.Sign{Seed: host.escrowKeyPair.Seed()}); err != nil {
+		return err
+	}
+	if err := ratchetTx.Mutate(build.Sign{Seed: host.hostRatchetAccount.keyPair.Seed()}); err != nil {
+		return err
+	}
+
 	if err := host.publishTx(ratchetTx); err != nil {
+		fmt.Println("tx fail")
+		err2 := err.(*horizon.Error).Problem
+		fmt.Println("Type: ",     err2.Type)
+		fmt.Println("Title: ",    err2.Title)
+		fmt.Println("Status: ",   err2.Status)
+		fmt.Println("Detail:",    err2.Detail)
+		fmt.Println("Instance: ", err2.Instance)
+		for key, value := range err2.Extras {
+			fmt.Println("KEYVALUE: ", key, string(value))
+		}
+		// fmt.Println("Extras: ",   err2.Extras)
+		return err
+	}
+	return nil
+}
+
+func (host *hostAccount) settleOnlyWithHostTx(settleOnlyWithHostTx *build.TransactionEnvelopeBuilder) error {
+	if err := settleOnlyWithHostTx.Mutate(build.Sign{Seed: host.escrowKeyPair.Seed()}); err != nil {
+		return err
+	}
+	// TODO(evg): remove it signer??
+	if err := settleOnlyWithHostTx.Mutate(build.Sign{Seed: host.hostRatchetAccount.keyPair.Seed()}); err != nil {
+		return err
+	}
+	//if err := settleOnlyWithHostTx.Mutate(build.Sign{Seed: host.guestRatchetAccount.keyPair.Seed()}); err != nil {
+	//	return err
+	//}
+
+	if err := host.publishTx(settleOnlyWithHostTx); err != nil {
 		fmt.Println("tx fail")
 		err2 := err.(*horizon.Error).Problem
 		fmt.Println("Type: ",     err2.Type)
