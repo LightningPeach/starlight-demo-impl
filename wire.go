@@ -20,3 +20,12 @@ type ChannelAcceptMsg struct {
 	GuestRatchetRound1Sig      *build.TransactionEnvelopeBuilder // TODO(evg): use only sig instead of whole signed tx
 	GuestSettleOnlyWithHostSig *build.TransactionEnvelopeBuilder // TODO(evg): use only sig instead of whole signed tx
 }
+
+type PaymentProposeMsg struct {
+	ChannelID                string
+	RoundNumber              int
+	PaymentTime              uint64
+	PaymentAmount            string
+	SenderSettleWithGuestSig string // (or empty)
+	SenderSettleWithHostSig  string
+}

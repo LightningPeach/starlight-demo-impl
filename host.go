@@ -13,7 +13,8 @@ const (
 	defaultMaxRoundDuration = 10
 	defaultFinalityDelay    = 10
 	defaultFeerate          = "undefined"
-	defaultHostAmount       = "42"
+	defaultHostAmount       = "500"
+	defaultPaymentAmount    = "100"
 
 	baseFee = 0.00001
 	feeRate = baseFee
@@ -149,7 +150,7 @@ func (host *hostAccount) fundingTx(guestEscrowPubKey string) error {
 		build.Payment(
 			build.Destination{AddressOrSeed: host.escrowKeyPair.Address()},
 			// build.NativeAmount{Amount: strconv.Itoa(0.5 + 8 * feeRate)},
-			build.NativeAmount{Amount: "0.50008"},
+			build.NativeAmount{Amount: "500.50008"}, // defaultHostAmount + 0.5 + 8 * feerate // TODO(evg): refactor it
 		),
 		build.SetOptions(
 			build.SourceAccount{AddressOrSeed: host.escrowKeyPair.Address()},
@@ -311,7 +312,7 @@ func (host *hostAccount) createSettleWithHostTx(rsn, paymentTime uint64) (*build
 		build.SourceAccount{AddressOrSeed: host.escrowKeyPair.Address()},
 		build.Sequence{Sequence: rsn + 3},
 		build.Timebounds{
-			MinTime: paymentTime + 2 * defaultFinalityDelay + defaultMaxRoundDuration,
+			MinTime: paymentTime + 2*defaultFinalityDelay + defaultMaxRoundDuration,
 		},
 		//Merge account EscrowAccount to HostAccount
 		//Merge account GuestRatchetAccount to HostAccount
@@ -372,6 +373,17 @@ func (host *hostAccount) createChannelProposeMsg(guestEscrowPubKey string) *Chan
 		HostAmount:          defaultHostAmount,
 		FundingTime:         getBlockChainTime(),
 		HostAccount:         host.selfKeyPair.Address(),
+	}
+}
+
+func (host *hostAccount) createPaymentProposeMsg(roundNumber int, paymentTime uint64) *PaymentProposeMsg {
+	return &PaymentProposeMsg{
+		ChannelID:     host.selfKeyPair.Address(),
+		RoundNumber:   roundNumber,
+		PaymentTime:   paymentTime,
+		PaymentAmount: defaultPaymentAmount,
+		//SenderSettleWithGuestSig string
+		//SenderSettleWithHostSig  string
 	}
 }
 

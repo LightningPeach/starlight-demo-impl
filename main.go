@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"time"
 )
 
 func main() {
@@ -57,18 +56,19 @@ func main() {
 
 	fmt.Printf("host account's balance(before force close): %v\n\n", hostAccount.loadBalance())
 
-	fmt.Println("publish ratchetTx")
-	if err := hostAccount.ratchetTx(channelAcceptMsg.GuestRatchetRound1Sig); err != nil {
-		log.Fatal(err)
-	}
-
-	time.Sleep((2*defaultFinalityDelay + defaultMaxRoundDuration) * time.Second + 10 * time.Second)
-	fmt.Println("time.Now(): ", time.Now().Unix())
-
-	fmt.Println("publish settleOnlyWithHostTx")
-	if err := hostAccount.settleOnlyWithHostTx(channelAcceptMsg.GuestSettleOnlyWithHostSig); err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Printf("host account's balance(after force close): %v\n\n", hostAccount.loadBalance())
+	//fmt.Println("publish ratchetTx")
+	//if err := hostAccount.ratchetTx(channelAcceptMsg.GuestRatchetRound1Sig); err != nil {
+	//	log.Fatal(err)
+	//}
+	//
+	//time.Sleep((2*defaultFinalityDelay + defaultMaxRoundDuration) * time.Second + 10 * time.Second)
+	//fmt.Println("time.Now(): ", time.Now().Unix())
+	//
+	//fmt.Println("publish settleOnlyWithHostTx")
+	//if err := hostAccount.settleOnlyWithHostTx(channelAcceptMsg.GuestSettleOnlyWithHostSig); err != nil {
+	//	log.Fatal(err)
+	//}
+	//
+	//fmt.Printf("host account's balance(after force close): %v\n\n", hostAccount.loadBalance())
+	_ = channelAcceptMsg
 }
