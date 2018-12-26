@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 )
 
 func main() {
@@ -43,6 +44,12 @@ func main() {
 	}
 
 	if err := hostAccount.ratchetTx(channelAcceptMsg.GuestRatchetRound1Sig); err != nil {
+		log.Fatal(err)
+	}
+
+	time.Sleep((2*defaultFinalityDelay + defaultMaxRoundDuration) * time.Second)
+
+	if err := hostAccount.settleOnlyWithHostTx(channelAcceptMsg.GuestSettleOnlyWithHostSig); err != nil {
 		log.Fatal(err)
 	}
 }
