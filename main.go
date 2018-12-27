@@ -140,6 +140,13 @@ func main() {
 		fmt.Println("WAIT")
 		time.Sleep((2*defaultFinalityDelay + defaultMaxRoundDuration) * time.Second + 10 * time.Second)
 
+		sqn, err := loadSequenceNumber(hostAccount.hostRatchetAccount.keyPair.Address())
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("account sequence number: ", sqn)
+		fmt.Println("tx sequence number: ", paymentAcceptMsg.RecipientSettleWithGuestSig.E.Tx.SeqNum)
+
 		txCopy = paymentAcceptMsg.RecipientSettleWithGuestSig
 		// txCopy.Mutate(build.Sign{Seed:})
 		_ = txCopy
