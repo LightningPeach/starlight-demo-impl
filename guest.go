@@ -22,8 +22,8 @@ func newGuestAccount() (*guestAccount, error) {
 }
 
 func (guest *guestAccount) createAndSignRatchetTxForHost(
-	hostRatchetAddress,
-	escrowAddress string,
+	escrowAddress,
+	hostRatchetAddress string,
 	paymentTime uint64,
 	roundSequenceNumber int,
 ) (
