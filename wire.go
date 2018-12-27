@@ -1,6 +1,9 @@
 package main
 
-import "github.com/stellar/go/build"
+import (
+	"github.com/stellar/go/build"
+	"github.com/stellar/go/xdr"
+)
 
 type ChannelProposeMsg struct {
 	ChannelID           string // the same as HostEscrowPubKey and the account ID of EscrowAccount
@@ -17,7 +20,7 @@ type ChannelProposeMsg struct {
 
 type ChannelAcceptMsg struct {
 	ChannelID                  string
-	GuestRatchetRound1Sig      *build.TransactionEnvelopeBuilder // TODO(evg): use only sig instead of whole signed tx
+	GuestRatchetRound1Sig      *xdr.DecoratedSignature           // TODO(evg): use only sig instead of whole signed tx
 	GuestSettleOnlyWithHostSig *build.TransactionEnvelopeBuilder // TODO(evg): use only sig instead of whole signed tx
 }
 
