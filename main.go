@@ -28,17 +28,12 @@ func main() {
 	if err := hostAccount.setupAccountTx(hostRatchetAccount); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("balance: %v\n\n", loadBalance(hostAccount.hostRatchetAccount.keyPair.Address()))
-
 	if err := hostAccount.setupAccountTx(guestRatchetAccount); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("balance: %v\n\n", loadBalance(hostAccount.guestRatchetAccount.keyPair.Address()))
-
 	if err := hostAccount.setupAccountTx(escrowAccount); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("balance: %v\n\n", loadBalance(hostAccount.escrowKeyPair.Address()))
 
 	fmt.Println("creating guest account:")
 	guestAccount, err := newGuestAccount()

@@ -132,6 +132,7 @@ func (host *hostAccount) setupAccountTx(account accountType) error {
 		}
 		host.baseSequenceNumber = sequence
 	}
+	fmt.Printf("balance: %v\n\n", loadBalance(dest))
 	return nil
 }
 
