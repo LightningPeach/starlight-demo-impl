@@ -5,6 +5,7 @@ import (
 	"github.com/stellar/go/build"
 	"github.com/stellar/go/clients/horizon"
 	"github.com/stellar/go/keypair"
+	"github.com/stellar/go/xdr"
 	"log"
 	"time"
 )
@@ -215,29 +216,84 @@ func (host *hostAccount) fundingTx(guestEscrowPubKey string) error {
 
 func (host *hostAccount) cleanupTx() {}
 
-func (host *hostAccount) ratchetTx(ratchetTx *build.TransactionEnvelopeBuilder) error {
-	if err := ratchetTx.Mutate(build.Sign{Seed: host.escrowKeyPair.Seed()}); err != nil {
-		return err
-	}
-	//if err := ratchetTx.Mutate(build.Sign{Seed: host.hostRatchetAccount.keyPair.Seed()}); err != nil {
-	//	return err
-	//}
+//func (host *hostAccount) ratchetTx(ratchetTx *build.TransactionEnvelopeBuilder) error {
+//	if err := ratchetTx.Mutate(build.Sign{Seed: host.escrowKeyPair.Seed()}); err != nil {
+//		return err
+//	}
+//	//if err := ratchetTx.Mutate(build.Sign{Seed: host.hostRatchetAccount.keyPair.Seed()}); err != nil {
+//	//	return err
+//	//}
+//
+//	if err := host.publishTx(ratchetTx); err != nil {
+//		fmt.Println("tx fail")
+//		err2 := err.(*horizon.Error).Problem
+//		fmt.Println("Type: ", err2.Type)
+//		fmt.Println("Title: ", err2.Title)
+//		fmt.Println("Status: ", err2.Status)
+//		fmt.Println("Detail:", err2.Detail)
+//		fmt.Println("Instance: ", err2.Instance)
+//		for key, value := range err2.Extras {
+//			fmt.Println("KEYVALUE: ", key, string(value))
+//		}
+//		// fmt.Println("Extras: ",   err2.Extras)
+//		return err
+//	}
+//	return nil
+//}
+func (host *hostAccount) ratchetTx(
+	sig *xdr.DecoratedSignature,
+	paymentTime uint64,
+	roundSequenceNumber int,
+) (
+	*build.TransactionEnvelopeBuilder,
+	error,
+) {
 
-	if err := host.publishTx(ratchetTx); err != nil {
-		fmt.Println("tx fail")
-		err2 := err.(*horizon.Error).Problem
-		fmt.Println("Type: ", err2.Type)
-		fmt.Println("Title: ", err2.Title)
-		fmt.Println("Status: ", err2.Status)
-		fmt.Println("Detail:", err2.Detail)
-		fmt.Println("Instance: ", err2.Instance)
-		for key, value := range err2.Extras {
-			fmt.Println("KEYVALUE: ", key, string(value))
-		}
-		// fmt.Println("Extras: ",   err2.Extras)
-		return err
+	tx, err := host.createRatchetTx(paymentTime, roundSequenceNumber)
+	if err != nil {
+		return nil, err
 	}
-	return nil
+
+	txe, err := tx.Sign(host.escrowKeyPair.Seed())
+	if err != nil {
+		return nil, err
+	}
+
+	txe.E.Signatures = append(txe.E.Signatures, *sig)
+	return &txe, nil
+}
+
+func (host *hostAccount) createRatchetTx(
+	// hostRatchetAddress,
+	// escrowAddress string,
+	paymentTime uint64,
+	roundSequenceNumber int,
+) (
+	*build.TransactionBuilder,
+	error,
+) {
+	sequenceNumber, err := loadSequenceNumber(host.hostRatchetAccount.keyPair.Address())
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := build.Transaction(
+		build.TestNetwork,
+		build.SourceAccount{AddressOrSeed: host.hostRatchetAccount.keyPair.Address()},
+		build.Sequence{Sequence: uint64(sequenceNumber) + 1},
+		build.Timebounds{
+			MaxTime: paymentTime + defaultFinalityDelay + defaultMaxRoundDuration,
+		},
+		build.BumpSequence(
+			build.SourceAccount{AddressOrSeed: host.escrowKeyPair.Address()},
+			build.BumpTo(roundSequenceNumber+1),
+		),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return tx, nil
 }
 
 func (host *hostAccount) settleOnlyWithHostTx(settleOnlyWithHostTx *build.TransactionEnvelopeBuilder) error {
