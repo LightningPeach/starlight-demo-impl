@@ -101,3 +101,46 @@ func createSettleWithGuestTx(
 
 	//return &txe, nil
 }
+
+func createSettleWithHostTx(
+	rsn,
+	paymentTime uint64,
+	escrowAddress,
+	guestRatchetAddress,
+	hostRatchetAddress,
+	hostAddress string,
+) (*build.TransactionBuilder, error) {
+
+	tx, err := build.Transaction(
+		build.TestNetwork,
+		build.SourceAccount{AddressOrSeed: escrowAddress},
+		build.Sequence{Sequence: rsn + 3},
+		build.Timebounds{
+			MinTime: paymentTime + 2*defaultFinalityDelay + defaultMaxRoundDuration,
+		},
+		//Merge account EscrowAccount to HostAccount
+		//Merge account GuestRatchetAccount to HostAccount
+		//Merge account HostRatchetAccount to HostAccount
+		build.AccountMerge(
+			build.SourceAccount{AddressOrSeed: escrowAddress},
+			build.Destination{AddressOrSeed: hostAddress},
+		),
+		build.AccountMerge(
+			build.SourceAccount{AddressOrSeed: guestRatchetAddress},
+			build.Destination{AddressOrSeed: hostAddress},
+		),
+		build.AccountMerge(
+			build.SourceAccount{AddressOrSeed: hostRatchetAddress},
+			build.Destination{AddressOrSeed: hostAddress},
+		),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	//txe, err := tx.Sign(host.escrowKeyPair.Seed())
+	//if err != nil {
+	//	return nil, err
+	//}
+	return tx, nil
+}
