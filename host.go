@@ -240,7 +240,7 @@ func (host *hostAccount) cleanupTx() {}
 //	}
 //	return nil
 //}
-func (host *hostAccount) ratchetTx(
+func (host *hostAccount) createAndSignRatchetTxForSelf(
 	sig *xdr.DecoratedSignature,
 	paymentTime uint64,
 	roundSequenceNumber int,
@@ -249,7 +249,7 @@ func (host *hostAccount) ratchetTx(
 	error,
 ) {
 
-	tx, err := host.createRatchetTx(paymentTime, roundSequenceNumber)
+	tx, err := host.createRatchetTxForSelf(paymentTime, roundSequenceNumber)
 	if err != nil {
 		return nil, err
 	}
@@ -263,37 +263,19 @@ func (host *hostAccount) ratchetTx(
 	return &txe, nil
 }
 
-func (host *hostAccount) createRatchetTx(
-	// hostRatchetAddress,
-	// escrowAddress string,
+func (host *hostAccount) createRatchetTxForSelf(
 	paymentTime uint64,
 	roundSequenceNumber int,
 ) (
 	*build.TransactionBuilder,
 	error,
 ) {
-	sequenceNumber, err := loadSequenceNumber(host.hostRatchetAccount.keyPair.Address())
-	if err != nil {
-		return nil, err
-	}
-
-	tx, err := build.Transaction(
-		build.TestNetwork,
-		build.SourceAccount{AddressOrSeed: host.hostRatchetAccount.keyPair.Address()},
-		build.Sequence{Sequence: uint64(sequenceNumber) + 1},
-		build.Timebounds{
-			MaxTime: paymentTime + defaultFinalityDelay + defaultMaxRoundDuration,
-		},
-		build.BumpSequence(
-			build.SourceAccount{AddressOrSeed: host.escrowKeyPair.Address()},
-			build.BumpTo(roundSequenceNumber+1),
-		),
+	return createRatchetTx(
+		host.hostRatchetAccount.keyPair.Address(),
+		host.escrowKeyPair.Address(),
+		paymentTime,
+		roundSequenceNumber,
 	)
-	if err != nil {
-		return nil, err
-	}
-
-	return tx, nil
 }
 
 func (host *hostAccount) settleOnlyWithHostTx(settleOnlyWithHostTx *build.TransactionEnvelopeBuilder) error {

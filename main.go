@@ -142,7 +142,7 @@ func main() {
 	rsn := roundSequenceNumber(hostAccount.baseSequenceNumber, 1)
 
 	fmt.Println("publish ratchetTx")
-	tx, err := hostAccount.ratchetTx(
+	tx, err := hostAccount.createAndSignRatchetTxForSelf(
 		channelAcceptMsg.GuestRatchetRound1Sig,
 		channelProposeMsg.FundingTime,
 		rsn,
