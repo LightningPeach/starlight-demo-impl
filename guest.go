@@ -21,7 +21,7 @@ func newGuestAccount() (*guestAccount, error) {
 	}, nil
 }
 
-func (guest *guestAccount) createRatchetTx(
+func (guest *guestAccount) createAndSignRatchetTxForHost(
 	hostRatchetAddress,
 	escrowAddress string,
 	paymentTime uint64,
@@ -30,23 +30,7 @@ func (guest *guestAccount) createRatchetTx(
 	*build.TransactionEnvelopeBuilder,
 	error,
 ) {
-	sequenceNumber, err := loadSequenceNumber(hostRatchetAddress)
-	if err != nil {
-		return nil, err
-	}
-
-	tx, err := build.Transaction(
-		build.TestNetwork,
-		build.SourceAccount{AddressOrSeed: hostRatchetAddress},
-		build.Sequence{Sequence: uint64(sequenceNumber) + 1},
-		build.Timebounds{
-			MaxTime: paymentTime + defaultFinalityDelay + defaultMaxRoundDuration,
-		},
-		build.BumpSequence(
-			build.SourceAccount{AddressOrSeed: escrowAddress},
-			build.BumpTo(roundSequenceNumber+1),
-		),
-	)
+	tx, err := createRatchetTx(hostRatchetAddress, escrowAddress, paymentTime, roundSequenceNumber)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +96,7 @@ func (guest *guestAccount) receiveChannelProposeMsg(msg *ChannelProposeMsg) (*Ch
 	rsn := roundSequenceNumber(baseSequenceNumber, 1)
 
 	fmt.Println("createRatchetTx for host")
-	ratchetTx, err := guest.createRatchetTx(msg.HostRatchetAccount, msg.ChannelID, msg.FundingTime, rsn)
+	ratchetTx, err := guest.createAndSignRatchetTxForHost(msg.HostRatchetAccount, msg.ChannelID, msg.FundingTime, rsn)
 	if err != nil {
 		return nil, err
 	}
