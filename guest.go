@@ -27,6 +27,7 @@ func newGuestAccount() (*guestAccount, error) {
 	}
 	guestAccount := &guestAccount{
 		keyPair: keyPair,
+		cache:   new(guestMessageCache),
 	}
 	fmt.Printf("balance: %v\n\n", loadBalance(guestAccount.keyPair.Address()))
 	return guestAccount, nil
