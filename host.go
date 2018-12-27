@@ -332,19 +332,31 @@ func (host *hostAccount) createSettleWithGuestTx(
 	error,
 ) {
 
-	tx, err := build.Transaction(
-		build.TestNetwork,
-		build.SourceAccount{AddressOrSeed: host.escrowKeyPair.Address()},
-		build.Sequence{Sequence: rsn + 2},
-		build.Timebounds{
-			MinTime: paymentTime + 2*defaultFinalityDelay + defaultMaxRoundDuration,
-		},
-		// Pay GuestAmount from EscrowAccount to GuestAccount
-		build.Payment(
-			build.Destination{AddressOrSeed: guestAddress},
-			build.NativeAmount{Amount: guestAmount},
-		),
+	//rsn,
+	//paymentTime uint64,
+	//guestAddress,
+	//guestAmount,
+	//escrowAddress string,
+	tx, err := createSettleWithGuestTx(
+		rsn,
+		paymentTime,
+		guestAddress,
+		guestAmount,
+		host.escrowKeyPair.Address(),
 	)
+	//tx, err := build.Transaction(
+	//	build.TestNetwork,
+	//	build.SourceAccount{AddressOrSeed: host.escrowKeyPair.Address()},
+	//	build.Sequence{Sequence: rsn + 2},
+	//	build.Timebounds{
+	//		MinTime: paymentTime + 2*defaultFinalityDelay + defaultMaxRoundDuration,
+	//	},
+	//	// Pay GuestAmount from EscrowAccount to GuestAccount
+	//	build.Payment(
+	//		build.Destination{AddressOrSeed: guestAddress},
+	//		build.NativeAmount{Amount: guestAmount},
+	//	),
+	//)
 	if err != nil {
 		return nil, err
 	}
