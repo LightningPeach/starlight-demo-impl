@@ -121,6 +121,8 @@ func main() {
 
 	fmt.Println("SETTLE WITH HOST TX")
 	txCopy = paymentAcceptMsg.RecipientSettleWithHostSig
+	fmt.Println(len(txCopy.E.Signatures))
+	fmt.Println(txCopy.E.Signatures)
 	_ = txCopy
 	if err := hostAccount.publishTx(paymentAcceptMsg.RecipientSettleWithHostSig); err != nil {
 		fmt.Println("tx fail")
