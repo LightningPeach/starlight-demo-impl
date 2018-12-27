@@ -19,27 +19,22 @@ func main() {
 
 	fmt.Println("starlight_demo")
 
-	fmt.Println("creating host account:")
 	hostAccount, err := newHostAccount()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("balance: %v\n\n", hostAccount.loadBalance())
 
 	fmt.Println("creating channel accounts:")
-	fmt.Printf("creating: %v\n", hostRatchetAccount)
 	if err := hostAccount.setupAccountTx(hostRatchetAccount); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("balance: %v\n\n", loadBalance(hostAccount.hostRatchetAccount.keyPair.Address()))
 
-	fmt.Printf("creating: %v\n", guestRatchetAccount)
 	if err := hostAccount.setupAccountTx(guestRatchetAccount); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("balance: %v\n\n", loadBalance(hostAccount.guestRatchetAccount.keyPair.Address()))
 
-	fmt.Printf("creating: %v\n", escrowAccount)
 	if err := hostAccount.setupAccountTx(escrowAccount); err != nil {
 		log.Fatal(err)
 	}

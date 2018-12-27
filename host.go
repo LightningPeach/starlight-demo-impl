@@ -57,6 +57,7 @@ type hostAccount struct {
 }
 
 func newHostAccount() (*hostAccount, error) {
+	fmt.Println("creating host account:")
 	selfKeyPair, err := createAccount()
 	if err != nil {
 		return nil, err
@@ -77,15 +78,19 @@ func newHostAccount() (*hostAccount, error) {
 		return nil, err
 	}
 
-	return &hostAccount{
+	hostAccount := &hostAccount{
 		selfKeyPair:         selfKeyPair,
 		escrowKeyPair:       escrowKeyPair,
 		hostRatchetAccount:  hostRatchetAccount,
 		guestRatchetAccount: guestRatchetAccount,
-	}, nil
+	}
+
+	fmt.Printf("balance: %v\n\n", hostAccount.loadBalance())
+	return hostAccount, nil
 }
 
 func (host *hostAccount) setupAccountTx(account accountType) error {
+	fmt.Printf("creating: %v\n", account)
 	var dest string
 	switch account {
 	case hostRatchetAccount:
