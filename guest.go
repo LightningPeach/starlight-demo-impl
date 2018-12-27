@@ -118,46 +118,46 @@ func (guest *guestAccount) receiveChannelProposeMsg(msg *ChannelProposeMsg) (*Ch
 	}, nil
 }
 
-func (guest *guestAccount) createRatchetTxForOffChainPayment(
-	escrowAddress,
-	hostRatchetAddress string,
-	paymentTime uint64,
-	rsn int64,
-) (
-	*build.TransactionEnvelopeBuilder,
-	error,
-) {
-
-	sequence, err := loadSequenceNumber(hostRatchetAddress)
-	if err != nil {
-		return nil, err
-	}
-
-	tx, err := build.Transaction(
-		build.TestNetwork,
-		build.SourceAccount{AddressOrSeed: hostRatchetAddress},
-		// RatchetAccount.SequenceNumber + 1
-		build.Sequence{Sequence: uint64(sequence) + 1},
-		build.Timebounds{
-			MaxTime: paymentTime + defaultFinalityDelay + defaultMaxRoundDuration,
-		},
-		// Bump sequence of EscrowAccount to RoundSequenceNumber + 1
-		build.BumpSequence(
-			build.SourceAccount{AddressOrSeed: escrowAddress},
-			build.BumpTo(rsn+1),
-		),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	txe, err := tx.Sign(guest.keyPair.Seed())
-	if err != nil {
-		return nil, err
-	}
-
-	return &txe, nil
-}
+//func (guest *guestAccount) createRatchetTxForOffChainPayment(
+//	escrowAddress,
+//	hostRatchetAddress string,
+//	paymentTime uint64,
+//	rsn int64,
+//) (
+//	*build.TransactionEnvelopeBuilder,
+//	error,
+//) {
+//
+//	sequence, err := loadSequenceNumber(hostRatchetAddress)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	tx, err := build.Transaction(
+//		build.TestNetwork,
+//		build.SourceAccount{AddressOrSeed: hostRatchetAddress},
+//		// RatchetAccount.SequenceNumber + 1
+//		build.Sequence{Sequence: uint64(sequence) + 1},
+//		build.Timebounds{
+//			MaxTime: paymentTime + defaultFinalityDelay + defaultMaxRoundDuration,
+//		},
+//		// Bump sequence of EscrowAccount to RoundSequenceNumber + 1
+//		build.BumpSequence(
+//			build.SourceAccount{AddressOrSeed: escrowAddress},
+//			build.BumpTo(rsn+1),
+//		),
+//	)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	txe, err := tx.Sign(guest.keyPair.Seed())
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	return &txe, nil
+//}
 
 // TODO(evg): guest should already know all args
 func (guest *guestAccount) receivePaymentProposeMsg(
@@ -171,7 +171,7 @@ func (guest *guestAccount) receivePaymentProposeMsg(
 	// paymentTime uint64,
 	// rsn int64,
 	rsn := roundSequenceNumber(int(bsn), msg.RoundNumber)
-	ratchetTxForOffChainPayment, err := guest.createRatchetTxForOffChainPayment(escrowAddress, hostRatchetAddress, msg.PaymentTime, int64(rsn))
+	ratchetTxForOffChainPayment, err := guest.createAndSignRatchetTxForHost(escrowAddress, hostRatchetAddress, msg.PaymentTime, rsn)
 	if err != nil {
 		return nil, err
 	}
