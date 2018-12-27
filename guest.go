@@ -7,8 +7,16 @@ import (
 	"log"
 )
 
+type guestMessageCache struct {
+	channelProposeMsg *ChannelProposeMsg
+}
+
 type guestAccount struct {
 	keyPair *keypair.Full
+
+	baseSequenceNumber int
+
+	cache *guestMessageCache
 }
 
 func newGuestAccount() (*guestAccount, error) {
@@ -77,10 +85,13 @@ func (guest *guestAccount) createAndSignSettleOnlyWithHostTx(
 }
 
 func (guest *guestAccount) receiveChannelProposeMsg(msg *ChannelProposeMsg) (*ChannelAcceptMsg, error) {
+	guest.cache.channelProposeMsg = &*msg
+
 	baseSequenceNumber, err := loadSequenceNumber(msg.ChannelID)
 	if err != nil {
 		return nil, err
 	}
+	guest.baseSequenceNumber = baseSequenceNumber
 	rsn := roundSequenceNumber(baseSequenceNumber, 1)
 
 	fmt.Println("createRatchetTx for host")
