@@ -95,13 +95,11 @@ func (guest *guestAccount) receiveChannelProposeMsg(msg *ChannelProposeMsg) (*Ch
 	guest.baseSequenceNumber = baseSequenceNumber
 	rsn := roundSequenceNumber(baseSequenceNumber, 1)
 
-	fmt.Println("createRatchetTx for host")
 	ratchetTx, err := guest.createAndSignRatchetTxForHost(msg.HostRatchetAccount, msg.ChannelID, msg.FundingTime, rsn)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println("createSettleOnlyWithHostTx")
 	settleOnlyWithHostTx, err := guest.createAndSignSettleOnlyWithHostTx(
 		msg.HostAccount,
 		msg.ChannelID,
