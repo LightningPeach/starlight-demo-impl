@@ -183,11 +183,11 @@ func (guest *guestAccount) receivePaymentProposeMsg(
 		escrowAddress,
 	)
 
-	txe, err := tx.Sign(guest.keyPair.Seed())
+	txeGuest, err := tx.Sign(guest.keyPair.Seed())
 	if err != nil {
 		return nil, err
 	}
-	txe.E.Signatures = append(txe.E.Signatures, *msg.SenderSettleWithGuestSig)
+	txeGuest.E.Signatures = append(txeGuest.E.Signatures, *msg.SenderSettleWithGuestSig)
 	//copyTxGuest := msg.SenderSettleWithGuestSig
 	//copyTxGuest.Mutate(build.Sign{Seed: guest.keyPair.Seed()})
 
@@ -198,7 +198,7 @@ func (guest *guestAccount) receivePaymentProposeMsg(
 		ChannelID:                   msg.ChannelID,
 		RoundNumber:                 msg.RoundNumber,
 		RecipientRatchetSig:         ratchetTxForOffChainPayment,
-		RecipientSettleWithGuestSig: &txe,
+		RecipientSettleWithGuestSig: &txeGuest,
 		RecipientSettleWithHostSig:  copyTxHost,
 	}, nil
 }
