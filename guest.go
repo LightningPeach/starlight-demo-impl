@@ -144,6 +144,15 @@ func (guest *guestAccount) receiveChannelProposeMsg(msg *ChannelProposeMsg) (*Ch
 //	return &txe, nil
 //}
 
+//rsn,
+//paymentTime uint64,
+//guestAddress,
+//guestAmount,
+//escrowAddress string,
+//func (guest *guestAccount) createSettleWithGuestTx() {
+//	createSettleWithGuestTx()
+//}
+
 // TODO(evg): guest should already know all args
 func (guest *guestAccount) receivePaymentProposeMsg(
 	msg *PaymentProposeMsg,
@@ -161,8 +170,26 @@ func (guest *guestAccount) receivePaymentProposeMsg(
 		return nil, err
 	}
 
-	copyTxGuest := msg.SenderSettleWithGuestSig
-	copyTxGuest.Mutate(build.Sign{Seed: guest.keyPair.Seed()})
+	//rsn,
+	//paymentTime uint64,
+	//guestAddress,
+	//guestAmount,
+	//escrowAddress string,
+	tx, err := createSettleWithGuestTx(
+		uint64(rsn),
+		msg.PaymentTime,
+		guest.keyPair.Address(),
+		msg.PaymentAmount,
+		escrowAddress,
+	)
+
+	txe, err := tx.Sign(guest.keyPair.Seed())
+	if err != nil {
+		return nil, err
+	}
+	txe.E.Signatures = append(txe.E.Signatures, *msg.SenderSettleWithGuestSig)
+	//copyTxGuest := msg.SenderSettleWithGuestSig
+	//copyTxGuest.Mutate(build.Sign{Seed: guest.keyPair.Seed()})
 
 	copyTxHost := msg.SenderSettleWithHostSig
 	copyTxHost.Mutate(build.Sign{Seed: guest.keyPair.Seed()})
@@ -171,7 +198,7 @@ func (guest *guestAccount) receivePaymentProposeMsg(
 		ChannelID:                   msg.ChannelID,
 		RoundNumber:                 msg.RoundNumber,
 		RecipientRatchetSig:         ratchetTxForOffChainPayment,
-		RecipientSettleWithGuestSig: copyTxGuest,
+		RecipientSettleWithGuestSig: &txe,
 		RecipientSettleWithHostSig:  copyTxHost,
 	}, nil
 }

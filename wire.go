@@ -29,7 +29,7 @@ type PaymentProposeMsg struct {
 	RoundNumber              int
 	PaymentTime              uint64
 	PaymentAmount            string
-	SenderSettleWithGuestSig *build.TransactionEnvelopeBuilder // (or empty)
+	SenderSettleWithGuestSig *xdr.DecoratedSignature // (or empty)
 	SenderSettleWithHostSig  *build.TransactionEnvelopeBuilder
 }
 

@@ -465,7 +465,7 @@ func (host *hostAccount) createPaymentProposeMsg(roundNumber int, guestAddress s
 		RoundNumber:              roundNumber,
 		PaymentTime:              paymentTime,
 		PaymentAmount:            defaultPaymentAmount,
-		SenderSettleWithGuestSig: settleWithGuestTx,
+		SenderSettleWithGuestSig: &settleWithGuestTx.E.Signatures[0],
 		SenderSettleWithHostSig:  settleWithHostTx,
 	}, nil
 }
