@@ -12,13 +12,16 @@ type guestAccount struct {
 }
 
 func newGuestAccount() (*guestAccount, error) {
+	fmt.Println("creating guest account:")
 	keyPair, err := createAccount()
 	if err != nil {
 		return nil, err
 	}
-	return &guestAccount{
+	guestAccount := &guestAccount{
 		keyPair: keyPair,
-	}, nil
+	}
+	fmt.Printf("balance: %v\n\n", loadBalance(guestAccount.keyPair.Address()))
+	return guestAccount, nil
 }
 
 func (guest *guestAccount) createAndSignRatchetTxForHost(

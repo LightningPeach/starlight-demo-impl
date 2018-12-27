@@ -35,12 +35,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("creating guest account:")
 	guestAccount, err := newGuestAccount()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("balance: %v\n\n", loadBalance(guestAccount.keyPair.Address()))
 
 	channelProposeMsg := hostAccount.createChannelProposeMsg(guestAccount.keyPair.Address())
 
