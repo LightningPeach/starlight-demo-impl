@@ -99,7 +99,7 @@ func (guest *guestAccount) receiveChannelProposeMsg(msg *ChannelProposeMsg) (*Ch
 	return &ChannelAcceptMsg{
 		ChannelID:                  msg.ChannelID,
 		GuestRatchetRound1Sig:      &ratchetTx.E.Signatures[0],
-		GuestSettleOnlyWithHostSig: settleOnlyWithHostTx,
+		GuestSettleOnlyWithHostSig: &settleOnlyWithHostTx.E.Signatures[0],
 	}, nil
 }
 

@@ -158,7 +158,7 @@ func main() {
 	fmt.Println("time.Now(): ", time.Now().Unix())
 
 	fmt.Println("publish settleOnlyWithHostTx")
-	if err := hostAccount.settleOnlyWithHostTx(channelAcceptMsg.GuestSettleOnlyWithHostSig); err != nil {
+	if err := hostAccount.settleOnlyWithHostTx(channelAcceptMsg.GuestSettleOnlyWithHostSig, channelProposeMsg.FundingTime); err != nil {
 		log.Fatal(err)
 	}
 

@@ -278,19 +278,33 @@ func (host *hostAccount) createRatchetTxForSelf(
 	)
 }
 
-func (host *hostAccount) settleOnlyWithHostTx(settleOnlyWithHostTx *build.TransactionEnvelopeBuilder) error {
-	if err := settleOnlyWithHostTx.Mutate(build.Sign{Seed: host.escrowKeyPair.Seed()}); err != nil {
+func (host *hostAccount) settleOnlyWithHostTx(
+	guestSettleOnlyWithHostSig *xdr.DecoratedSignature,
+	fundingTime uint64,
+	// roundSequenceNumber int,
+) error {
+	rsn := roundSequenceNumber(host.baseSequenceNumber, 1)
+
+	settleOnlyWithHostTx, err := createSettleOnlyWithHostTx(
+		host.selfKeyPair.Address(),
+		host.escrowKeyPair.Address(),
+		host.guestRatchetAccount.keyPair.Address(),
+		host.hostRatchetAccount.keyPair.Address(),
+		fundingTime,
+		rsn,
+	)
+	if err != nil {
 		return err
 	}
-	// TODO(evg): remove it signer??
-	//if err := settleOnlyWithHostTx.Mutate(build.Sign{Seed: host.hostRatchetAccount.keyPair.Seed()}); err != nil {
-	//	return err
-	//}
-	//if err := settleOnlyWithHostTx.Mutate(build.Sign{Seed: host.guestRatchetAccount.keyPair.Seed()}); err != nil {
-	//	return err
-	//}
 
-	if err := host.publishTx(settleOnlyWithHostTx); err != nil {
+	txe, err := settleOnlyWithHostTx.Sign(host.escrowKeyPair.Seed())
+	if err != nil {
+		return err
+	}
+
+	txe.E.Signatures = append(txe.E.Signatures, *guestSettleOnlyWithHostSig)
+
+	if err := host.publishTx(&txe); err != nil {
 		fmt.Println("tx fail")
 		err2 := err.(*horizon.Error).Problem
 		fmt.Println("Type: ", err2.Type)

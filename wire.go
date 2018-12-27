@@ -20,8 +20,8 @@ type ChannelProposeMsg struct {
 
 type ChannelAcceptMsg struct {
 	ChannelID                  string
-	GuestRatchetRound1Sig      *xdr.DecoratedSignature           // TODO(evg): use only sig instead of whole signed tx
-	GuestSettleOnlyWithHostSig *build.TransactionEnvelopeBuilder // TODO(evg): use only sig instead of whole signed tx
+	GuestRatchetRound1Sig      *xdr.DecoratedSignature // TODO(evg): use only sig instead of whole signed tx
+	GuestSettleOnlyWithHostSig *xdr.DecoratedSignature // TODO(evg): use only sig instead of whole signed tx
 }
 
 type PaymentProposeMsg struct {
