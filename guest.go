@@ -43,11 +43,11 @@ func (guest *guestAccount) createAndSignRatchetTxForHost(
 	return &txe, nil
 }
 
-func (guest *guestAccount) createSettleOnlyWithHostTx(
+func (guest *guestAccount) createAndSignSettleOnlyWithHostTx(
 	hostAddress,
 	escrowAddress,
-	guestRatchetAccount,
-	hostRatchetAccount string,
+	guestRatchetAddress,
+	hostRatchetAddress string,
 	fundingTime uint64,
 	roundSequenceNumber int,
 ) (
@@ -55,29 +55,14 @@ func (guest *guestAccount) createSettleOnlyWithHostTx(
 	error,
 ) {
 
-	tx, err := build.Transaction(
-		build.TestNetwork,
-		build.SourceAccount{AddressOrSeed: escrowAddress},
-		build.Sequence{Sequence: uint64(roundSequenceNumber) + 2},
-		build.Timebounds{
-			MinTime: fundingTime + 2*defaultFinalityDelay + defaultMaxRoundDuration,
-		},
-		build.AccountMerge(
-			build.SourceAccount{AddressOrSeed: escrowAddress},
-			build.Destination{AddressOrSeed: hostAddress},
-		),
-		build.AccountMerge(
-			build.SourceAccount{AddressOrSeed: guestRatchetAccount},
-			build.Destination{AddressOrSeed: hostAddress},
-		),
-		build.AccountMerge(
-			build.SourceAccount{AddressOrSeed: hostRatchetAccount},
-			build.Destination{AddressOrSeed: hostAddress},
-		),
+	tx, err := createSettleOnlyWithHostTx(
+		hostAddress,
+		escrowAddress,
+		guestRatchetAddress,
+		hostRatchetAddress,
+		fundingTime,
+		roundSequenceNumber,
 	)
-	if err != nil {
-		return nil, err
-	}
 	fmt.Println("createSettleOnlyWithHostTx.MinTime", fundingTime+2*defaultFinalityDelay+defaultMaxRoundDuration)
 
 	txe, err := tx.Sign(guest.keyPair.Seed())
@@ -102,7 +87,7 @@ func (guest *guestAccount) receiveChannelProposeMsg(msg *ChannelProposeMsg) (*Ch
 	}
 
 	fmt.Println("createSettleOnlyWithHostTx")
-	settleOnlyWithHostTx, err := guest.createSettleOnlyWithHostTx(
+	settleOnlyWithHostTx, err := guest.createAndSignSettleOnlyWithHostTx(
 		msg.HostAccount,
 		msg.ChannelID,
 		msg.GuestRatchetAccount,
