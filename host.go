@@ -148,7 +148,7 @@ func (host *hostAccount) fundingTx(guestEscrowPubKey string) error {
 		build.SourceAccount{AddressOrSeed: host.selfKeyPair.Address()},
 		build.Sequence{Sequence: uint64(host.loadSequenceNumber()) + 1},
 		build.Timebounds{
-			MaxTime: uint64(fundingTime + maxRoundDuration + finalityDelay),
+			MaxTime: uint64(fundingTime + defaultMaxRoundDuration + defaultFinalityDelay),
 		},
 		// Escrow Account
 		build.Payment(
