@@ -90,7 +90,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		
+
 		paymentAcceptMsg, err := guestAccount.receivePaymentProposeMsg(paymentProposeMsg)
 		if err != nil {
 			log.Fatal(err)

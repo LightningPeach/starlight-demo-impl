@@ -34,15 +34,18 @@ func newGuestAccount() (*guestAccount, error) {
 }
 
 func (guest *guestAccount) createAndSignRatchetTxForHost(
-	escrowAddress,
-	hostRatchetAddress string,
-	paymentTime uint64,
+	paymentTime uint64, // payment of funding time
 	roundSequenceNumber int,
 ) (
 	*build.TransactionEnvelopeBuilder,
 	error,
 ) {
-	tx, err := createRatchetTx(hostRatchetAddress, escrowAddress, paymentTime, roundSequenceNumber)
+	tx, err := createRatchetTx(
+		guest.cache.channelProposeMsg.HostRatchetAccount,
+		guest.cache.channelProposeMsg.ChannelID,
+		paymentTime,
+		roundSequenceNumber,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +98,7 @@ func (guest *guestAccount) receiveChannelProposeMsg(msg *ChannelProposeMsg) (*Ch
 	guest.baseSequenceNumber = baseSequenceNumber
 	rsn := roundSequenceNumber(baseSequenceNumber, 1)
 
-	ratchetTx, err := guest.createAndSignRatchetTxForHost(msg.HostRatchetAccount, msg.ChannelID, msg.FundingTime, rsn)
+	ratchetTx, err := guest.createAndSignRatchetTxForHost(msg.FundingTime, rsn)
 	if err != nil {
 		return nil, err
 	}
@@ -116,17 +119,9 @@ func (guest *guestAccount) receiveChannelProposeMsg(msg *ChannelProposeMsg) (*Ch
 	}, nil
 }
 
-// TODO(evg): guest should already know all args
-func (guest *guestAccount) receivePaymentProposeMsg(
-	msg *PaymentProposeMsg,
-) (*PaymentAcceptMsg, error) {
+func (guest *guestAccount) receivePaymentProposeMsg(msg *PaymentProposeMsg) (*PaymentAcceptMsg, error) {
 	rsn := roundSequenceNumber(int(guest.baseSequenceNumber), msg.RoundNumber)
-	ratchetTxForOffChainPayment, err := guest.createAndSignRatchetTxForHost(
-		guest.cache.channelProposeMsg.ChannelID,
-		guest.cache.channelProposeMsg.HostRatchetAccount,
-		msg.PaymentTime,
-		rsn,
-	)
+	ratchetTxForOffChainPayment, err := guest.createAndSignRatchetTxForHost(msg.PaymentTime, rsn)
 	if err != nil {
 		return nil, err
 	}
