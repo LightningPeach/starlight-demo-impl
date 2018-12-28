@@ -100,7 +100,7 @@ func (msg *PaymentProposeMsg) String() string {
 type PaymentAcceptMsg struct {
 	ChannelID                   string
 	RoundNumber                 int
-	RecipientRatchetSig         *build.TransactionEnvelopeBuilder
+	RecipientRatchetSig         *xdr.DecoratedSignature
 	RecipientSettleWithGuestSig *build.TransactionEnvelopeBuilder
 	RecipientSettleWithHostSig  *build.TransactionEnvelopeBuilder
 }

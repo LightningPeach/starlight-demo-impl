@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/stellar/go/build"
 	//"github.com/stellar/go/build"
 	//"github.com/stellar/go/clients/horizon"
 	"log"
@@ -97,9 +96,13 @@ func main() {
 		fmt.Println(paymentAcceptMsg)
 
 		fmt.Println("RATCHET TX")
-		txCopy := paymentAcceptMsg.RecipientRatchetSig
-		txCopy.Mutate(build.Sign{Seed: hostAccount.escrowKeyPair.Seed()})
-		if err := hostAccount.publishTx(paymentAcceptMsg.RecipientRatchetSig); err != nil {
+		txCopy, err := hostAccount.createAndSignRatchetTxForSelf(paymentAcceptMsg.RecipientRatchetSig, paymentProposeMsg.PaymentTime, rsn)
+		if err != nil {
+			log.Fatal(err)
+		}
+		//txCopy := paymentAcceptMsg.RecipientRatchetSig
+		//txCopy.Mutate(build.Sign{Seed: hostAccount.escrowKeyPair.Seed()})
+		if err := hostAccount.publishTx(txCopy); err != nil {
 			showDetailError(err)
 			log.Fatal(err)
 		}

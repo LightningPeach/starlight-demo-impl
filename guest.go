@@ -162,7 +162,7 @@ func (guest *guestAccount) receivePaymentProposeMsg(msg *PaymentProposeMsg) (*Pa
 	return &PaymentAcceptMsg{
 		ChannelID:                   msg.ChannelID,
 		RoundNumber:                 msg.RoundNumber,
-		RecipientRatchetSig:         ratchetTxForOffChainPayment,
+		RecipientRatchetSig:         &ratchetTxForOffChainPayment.E.Signatures[0],
 		RecipientSettleWithGuestSig: &txeGuest,
 		RecipientSettleWithHostSig:  &txeHost,
 	}, nil
