@@ -95,17 +95,6 @@ func main() {
 		}
 		fmt.Println(paymentAcceptMsg)
 
-		//fmt.Println("RATCHET TX")
-		//txCopy, err := hostAccount.createAndSignRatchetTxForSelf(paymentAcceptMsg.RecipientRatchetSig, paymentProposeMsg.PaymentTime, rsn)
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		////txCopy := paymentAcceptMsg.RecipientRatchetSig
-		////txCopy.Mutate(build.Sign{Seed: hostAccount.escrowKeyPair.Seed()})
-		//if err := hostAccount.publishTx(txCopy); err != nil {
-		//	showDetailError(err)
-		//	log.Fatal(err)
-		//}
 		if err := hostAccount.publishRatchetTx(paymentAcceptMsg.RecipientRatchetSig); err != nil {
 			log.Fatal(err)
 		}
