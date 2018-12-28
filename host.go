@@ -314,7 +314,7 @@ func (host *hostAccount) settleOnlyWithHostTx(
 }
 
 func (host *hostAccount) createAndSignSettleWithGuestTx(
-	rsn,
+	rsn uint64,
 	paymentTime uint64,
 	guestAmount string,
 ) (

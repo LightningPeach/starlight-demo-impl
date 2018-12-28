@@ -130,7 +130,7 @@ func (guest *guestAccount) receivePaymentProposeMsg(msg *PaymentProposeMsg) (*Pa
 	if err != nil {
 		return nil, err
 	}
-	txeGuest.E.Signatures = append(txeGuest.E.Signatures, *msg.SenderSettleWithGuestSig)
+	// txeGuest.E.Signatures = append(txeGuest.E.Signatures, *msg.SenderSettleWithGuestSig)
 
 	//rsn,
 	//paymentTime uint64,
@@ -163,7 +163,7 @@ func (guest *guestAccount) receivePaymentProposeMsg(msg *PaymentProposeMsg) (*Pa
 		ChannelID:                   msg.ChannelID,
 		RoundNumber:                 msg.RoundNumber,
 		RecipientRatchetSig:         &ratchetTxForOffChainPayment.E.Signatures[0],
-		RecipientSettleWithGuestSig: &txeGuest,
+		RecipientSettleWithGuestSig: &txeGuest.E.Signatures[0],
 		RecipientSettleWithHostSig:  &txeHost,
 	}, nil
 }

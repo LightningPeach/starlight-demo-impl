@@ -101,7 +101,7 @@ type PaymentAcceptMsg struct {
 	ChannelID                   string
 	RoundNumber                 int
 	RecipientRatchetSig         *xdr.DecoratedSignature
-	RecipientSettleWithGuestSig *build.TransactionEnvelopeBuilder
+	RecipientSettleWithGuestSig *xdr.DecoratedSignature
 	RecipientSettleWithHostSig  *build.TransactionEnvelopeBuilder
 }
 
