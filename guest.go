@@ -35,7 +35,7 @@ func newGuestAccount() (*guestAccount, error) {
 
 func (guest *guestAccount) createAndSignRatchetTxForHost(
 	paymentTime uint64, // payment of funding time
-	roundSequenceNumber int,
+	roundNumber int,
 ) (
 	*build.TransactionEnvelopeBuilder,
 	error,
@@ -44,7 +44,7 @@ func (guest *guestAccount) createAndSignRatchetTxForHost(
 		guest.cache.channelProposeMsg.HostRatchetAccount,
 		guest.cache.channelProposeMsg.ChannelID,
 		paymentTime,
-		roundSequenceNumber,
+		roundSequenceNumber(guest.baseSequenceNumber, roundNumber),
 	)
 	if err != nil {
 		return nil, err
@@ -60,7 +60,7 @@ func (guest *guestAccount) createAndSignRatchetTxForHost(
 
 func (guest *guestAccount) createAndSignSettleOnlyWithHostTx(
 	fundingTime uint64,
-	roundSequenceNumber int,
+	roundNumber int,
 ) (
 	*build.TransactionEnvelopeBuilder,
 	error,
@@ -72,7 +72,7 @@ func (guest *guestAccount) createAndSignSettleOnlyWithHostTx(
 		guest.cache.channelProposeMsg.GuestRatchetAccount,
 		guest.cache.channelProposeMsg.HostRatchetAccount,
 		fundingTime,
-		roundSequenceNumber,
+		roundSequenceNumber(guest.baseSequenceNumber, roundNumber),
 	)
 	fmt.Println("createSettleOnlyWithHostTx.MinTime", fundingTime+2*defaultFinalityDelay+defaultMaxRoundDuration)
 
@@ -92,17 +92,14 @@ func (guest *guestAccount) receiveChannelProposeMsg(msg *ChannelProposeMsg) (*Ch
 		return nil, err
 	}
 	guest.baseSequenceNumber = baseSequenceNumber
-	rsn := roundSequenceNumber(baseSequenceNumber, 1)
+	// rsn := roundSequenceNumber(baseSequenceNumber, 1)
 
-	ratchetTx, err := guest.createAndSignRatchetTxForHost(msg.FundingTime, rsn)
+	ratchetTx, err := guest.createAndSignRatchetTxForHost(msg.FundingTime, 1)
 	if err != nil {
 		return nil, err
 	}
 
-	settleOnlyWithHostTx, err := guest.createAndSignSettleOnlyWithHostTx(
-		msg.FundingTime,
-		rsn,
-	)
+	settleOnlyWithHostTx, err := guest.createAndSignSettleOnlyWithHostTx(msg.FundingTime, 1)
 
 	return &ChannelAcceptMsg{
 		ChannelID:                  msg.ChannelID,
@@ -113,7 +110,7 @@ func (guest *guestAccount) receiveChannelProposeMsg(msg *ChannelProposeMsg) (*Ch
 
 func (guest *guestAccount) receivePaymentProposeMsg(msg *PaymentProposeMsg) (*PaymentAcceptMsg, error) {
 	rsn := roundSequenceNumber(int(guest.baseSequenceNumber), msg.RoundNumber)
-	ratchetTxForOffChainPayment, err := guest.createAndSignRatchetTxForHost(msg.PaymentTime, rsn)
+	ratchetTxForOffChainPayment, err := guest.createAndSignRatchetTxForHost(msg.PaymentTime, msg.RoundNumber)
 	if err != nil {
 		return nil, err
 	}
