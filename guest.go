@@ -164,7 +164,7 @@ func (guest *guestAccount) receivePaymentProposeMsg(msg *PaymentProposeMsg) (*Pa
 		RoundNumber:                 msg.RoundNumber,
 		RecipientRatchetSig:         &ratchetTxForOffChainPayment.E.Signatures[0],
 		RecipientSettleWithGuestSig: &txeGuest.E.Signatures[0],
-		RecipientSettleWithHostSig:  &txeHost,
+		RecipientSettleWithHostSig:  &txeHost.E.Signatures[0],
 	}, nil
 }
 

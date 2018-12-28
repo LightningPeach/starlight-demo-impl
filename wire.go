@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/stellar/go/build"
 	"github.com/stellar/go/xdr"
 )
 
@@ -102,7 +101,7 @@ type PaymentAcceptMsg struct {
 	RoundNumber                 int
 	RecipientRatchetSig         *xdr.DecoratedSignature
 	RecipientSettleWithGuestSig *xdr.DecoratedSignature
-	RecipientSettleWithHostSig  *build.TransactionEnvelopeBuilder
+	RecipientSettleWithHostSig  *xdr.DecoratedSignature
 }
 
 func (msg *PaymentAcceptMsg) String() string {
