@@ -104,7 +104,6 @@ func (host *hostAccount) setupAccountTx(account accountType) error {
 	tx, err := build.Transaction(
 		build.TestNetwork,
 		build.SourceAccount{AddressOrSeed: host.selfKeyPair.Address()},
-		// build.AutoSequence{horizon.DefaultTestNetClient},
 		build.Sequence{Sequence: uint64(host.loadSequenceNumber()) + 1},
 		build.CreateAccount(
 			build.Destination{AddressOrSeed: dest},
@@ -136,10 +135,8 @@ func (host *hostAccount) setupAccountTx(account accountType) error {
 	return nil
 }
 
-// TODO(evg): minTime/maxTime
 func (host *hostAccount) fundingTx(guestEscrowPubKey string) error {
-	// TODO(evg): use blockchain timestamp instead of system time
-	fundingTime := time.Now().Unix()
+	fundingTime := getBlockChainTime()
 	// TODO(evg): adjust constants
 	const (
 		maxRoundDuration = 3600
