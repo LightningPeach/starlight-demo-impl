@@ -49,7 +49,7 @@ func main() {
 	}
 
 	fmt.Println("publish fundingTx")
-	if err := hostAccount.fundingTx(guestAccount.keyPair.Address()); err != nil {
+	if err := hostAccount.publishFundingTx(guestAccount.keyPair.Address()); err != nil {
 		log.Fatal(err)
 	}
 

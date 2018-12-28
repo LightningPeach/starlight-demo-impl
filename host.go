@@ -135,13 +135,8 @@ func (host *hostAccount) setupAccountTx(account accountType) error {
 	return nil
 }
 
-func (host *hostAccount) fundingTx(guestEscrowPubKey string) error {
+func (host *hostAccount) publishFundingTx(guestEscrowPubKey string) error {
 	fundingTime := getBlockChainTime()
-	// TODO(evg): adjust constants
-	const (
-		maxRoundDuration = 3600
-		finalityDelay    = 3600
-	)
 
 	tx, err := build.Transaction(
 		build.TestNetwork,
@@ -153,8 +148,8 @@ func (host *hostAccount) fundingTx(guestEscrowPubKey string) error {
 		// Escrow Account
 		build.Payment(
 			build.Destination{AddressOrSeed: host.escrowKeyPair.Address()},
-			// build.NativeAmount{Amount: strconv.Itoa(0.5 + 8 * feeRate)},
-			build.NativeAmount{Amount: "500.50008"}, // defaultHostAmount + 0.5 + 8 * feerate // TODO(evg): refactor it
+			// TODO(evg): refactor it
+			build.NativeAmount{Amount: "500.50008"}, // defaultHostAmount + 0.5 + 8 * feerate
 		),
 		build.SetOptions(
 			build.SourceAccount{AddressOrSeed: host.escrowKeyPair.Address()},
@@ -167,7 +162,7 @@ func (host *hostAccount) fundingTx(guestEscrowPubKey string) error {
 		// GuestRatchetAccount
 		build.Payment(
 			build.Destination{AddressOrSeed: host.guestRatchetAccount.keyPair.Address()},
-			build.NativeAmount{Amount: "1.00001"},
+			build.NativeAmount{Amount: "1.00001"}, // 1 + 1 * feerate
 		),
 		build.SetOptions(
 			build.SourceAccount{AddressOrSeed: host.guestRatchetAccount.keyPair.Address()},
@@ -188,7 +183,7 @@ func (host *hostAccount) fundingTx(guestEscrowPubKey string) error {
 		// HostRatchetAccount
 		build.Payment(
 			build.Destination{AddressOrSeed: host.hostRatchetAccount.keyPair.Address()},
-			build.NativeAmount{Amount: "0.50001"},
+			build.NativeAmount{Amount: "0.50001"}, // 0.5 + 1 * feerate
 		),
 		build.SetOptions(
 			build.SourceAccount{AddressOrSeed: host.hostRatchetAccount.keyPair.Address()},
