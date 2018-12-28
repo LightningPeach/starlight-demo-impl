@@ -313,6 +313,26 @@ func (host *hostAccount) settleOnlyWithHostTx(
 	return nil
 }
 
+func (host *hostAccount) publishSettleWithGuestTx(
+	rsn,
+	paymentTime uint64,
+	guestAmount string,
+	sig *xdr.DecoratedSignature,
+) error {
+
+	tx, err := host.createAndSignSettleWithGuestTx(rsn, paymentTime, guestAmount)
+	if err != nil {
+		return err
+	}
+	tx.E.Signatures = append(tx.E.Signatures, *sig)
+
+	if err := host.publishTx(tx); err != nil {
+		showDetailError(err)
+		return err
+	}
+	return nil
+}
+
 func (host *hostAccount) createAndSignSettleWithGuestTx(
 	rsn uint64,
 	paymentTime uint64,
