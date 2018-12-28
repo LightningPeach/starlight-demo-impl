@@ -214,30 +214,6 @@ func (host *hostAccount) publishFundingTx(guestEscrowPubKey string) error {
 
 func (host *hostAccount) cleanupTx() {}
 
-//func (host *hostAccount) ratchetTx(ratchetTx *build.TransactionEnvelopeBuilder) error {
-//	if err := ratchetTx.Mutate(build.Sign{Seed: host.escrowKeyPair.Seed()}); err != nil {
-//		return err
-//	}
-//	//if err := ratchetTx.Mutate(build.Sign{Seed: host.hostRatchetAccount.keyPair.Seed()}); err != nil {
-//	//	return err
-//	//}
-//
-//	if err := host.publishTx(ratchetTx); err != nil {
-//		fmt.Println("tx fail")
-//		err2 := err.(*horizon.Error).Problem
-//		fmt.Println("Type: ", err2.Type)
-//		fmt.Println("Title: ", err2.Title)
-//		fmt.Println("Status: ", err2.Status)
-//		fmt.Println("Detail:", err2.Detail)
-//		fmt.Println("Instance: ", err2.Instance)
-//		for key, value := range err2.Extras {
-//			fmt.Println("KEYVALUE: ", key, string(value))
-//		}
-//		// fmt.Println("Extras: ",   err2.Extras)
-//		return err
-//	}
-//	return nil
-//}
 func (host *hostAccount) createAndSignRatchetTxForSelf(
 	sig *xdr.DecoratedSignature,
 	paymentTime uint64,
@@ -279,7 +255,6 @@ func (host *hostAccount) createRatchetTxForSelf(
 func (host *hostAccount) settleOnlyWithHostTx(
 	guestSettleOnlyWithHostSig *xdr.DecoratedSignature,
 	fundingTime uint64,
-	// roundSequenceNumber int,
 ) error {
 	rsn := roundSequenceNumber(host.baseSequenceNumber, 1)
 
@@ -303,17 +278,7 @@ func (host *hostAccount) settleOnlyWithHostTx(
 	txe.E.Signatures = append(txe.E.Signatures, *guestSettleOnlyWithHostSig)
 
 	if err := host.publishTx(&txe); err != nil {
-		fmt.Println("tx fail")
-		err2 := err.(*horizon.Error).Problem
-		fmt.Println("Type: ", err2.Type)
-		fmt.Println("Title: ", err2.Title)
-		fmt.Println("Status: ", err2.Status)
-		fmt.Println("Detail:", err2.Detail)
-		fmt.Println("Instance: ", err2.Instance)
-		for key, value := range err2.Extras {
-			fmt.Println("KEYVALUE: ", key, string(value))
-		}
-		// fmt.Println("Extras: ",   err2.Extras)
+		showDetailError(err)
 		return err
 	}
 	return nil
