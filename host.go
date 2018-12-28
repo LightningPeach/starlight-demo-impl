@@ -361,6 +361,20 @@ func (host *hostAccount) createAndSignSettleWithGuestTx(
 	return &txe, nil
 }
 
+func (host *hostAccount) publishSignSettleWithHostTx(rsn, paymentTime uint64, sig *xdr.DecoratedSignature) error{
+	tx, err := host.createAndSignSettleWithHostTx(rsn, paymentTime)
+	if err != nil {
+		return err
+	}
+	tx.E.Signatures = append(tx.E.Signatures, *sig)
+
+	if err := host.publishTx(tx); err != nil {
+		showDetailError(err)
+		return err
+	}
+	return nil
+}
+
 func (host *hostAccount) createAndSignSettleWithHostTx(rsn, paymentTime uint64) (*build.TransactionEnvelopeBuilder, error) {
 	tx, err := createSettleWithHostTx(
 		rsn,

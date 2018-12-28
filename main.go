@@ -104,12 +104,15 @@ func main() {
 		fmt.Println("WAIT")
 		time.Sleep((2*defaultFinalityDelay + defaultMaxRoundDuration) * time.Second + 10 * time.Second)
 
-		hostAccount.publishSettleWithGuestTx(
+		err = hostAccount.publishSettleWithGuestTx(
 			uint64(rsn),
 			paymentProposeMsg.PaymentTime,
 			defaultPaymentAmount,
 			paymentAcceptMsg.RecipientSettleWithGuestSig,
 		)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		fmt.Println("SETTLE WITH HOST TX")
 		txCopy := paymentAcceptMsg.RecipientSettleWithHostSig
@@ -117,14 +120,22 @@ func main() {
 		//fmt.Println(txCopy.E.Signatures)
 		_ = txCopy
 
-		tx, err := hostAccount.createAndSignSettleWithHostTx(uint64(rsn), paymentProposeMsg.PaymentTime)
+		//tx, err := hostAccount.createAndSignSettleWithHostTx(uint64(rsn), paymentProposeMsg.PaymentTime)
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
+		//tx.E.Signatures = append(tx.E.Signatures, *paymentAcceptMsg.RecipientSettleWithHostSig)
+		//
+		//if err := hostAccount.publishTx(tx); err != nil {
+		//	showDetailError(err)
+		//	log.Fatal(err)
+		//}
+		err = hostAccount.publishSignSettleWithHostTx(
+			uint64(rsn),
+			paymentProposeMsg.PaymentTime,
+			paymentAcceptMsg.RecipientSettleWithHostSig,
+		)
 		if err != nil {
-			log.Fatal(err)
-		}
-		tx.E.Signatures = append(tx.E.Signatures, *paymentAcceptMsg.RecipientSettleWithHostSig)
-
-		if err := hostAccount.publishTx(tx); err != nil {
-			showDetailError(err)
 			log.Fatal(err)
 		}
 
