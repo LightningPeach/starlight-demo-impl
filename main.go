@@ -103,27 +103,7 @@ func main() {
 
 		fmt.Println("WAIT")
 		time.Sleep((2*defaultFinalityDelay + defaultMaxRoundDuration) * time.Second + 10 * time.Second)
-
-		//sqn, err := loadSequenceNumber(hostAccount.hostRatchetAccount.keyPair.Address())
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//fmt.Println("account sequence number: ", sqn)
-		//fmt.Println("tx sequence number: ", paymentAcceptMsg.RecipientSettleWithGuestSig.E.Tx.SeqNum)
-		//
-		//sqn, err = loadSequenceNumber(paymentAcceptMsg.RecipientSettleWithGuestSig.E.Tx.SourceAccount.Address())
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//fmt.Println("REAL account sequence number: ", sqn)
-
-		// txCopy := paymentAcceptMsg.RecipientSettleWithGuestSig
-		// txCopy.Mutate(build.Sign{Seed:})
-		// _ = txCopy
-
-		//rsn,
-		//paymentTime uint64,
-		//guestAmount string,
+		
 		txCopy, err := hostAccount.createAndSignSettleWithGuestTx(uint64(rsn), paymentProposeMsg.PaymentTime, defaultPaymentAmount)
 		if err != nil {
 			log.Fatal(err)
