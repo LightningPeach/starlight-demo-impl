@@ -77,7 +77,6 @@ func main() {
 		}
 
 		fmt.Printf("host account's balance(after force close): %v\n\n", hostAccount.loadBalance())
-		_ = channelAcceptMsg
 
 		return
 	}
@@ -99,7 +98,6 @@ func main() {
 			log.Fatal(err)
 		}
 
-		fmt.Println("SETTLE WITH GUEST TX")
 
 		fmt.Println("WAIT")
 		time.Sleep((2*defaultFinalityDelay + defaultMaxRoundDuration) * time.Second + 10 * time.Second)
@@ -113,10 +111,6 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		fmt.Println("SETTLE WITH HOST TX")
-		txCopy := paymentAcceptMsg.RecipientSettleWithHostSig
-		_ = txCopy
 
 		err = hostAccount.publishSignSettleWithHostTx(
 			uint64(rsn),

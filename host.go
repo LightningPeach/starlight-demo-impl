@@ -319,6 +319,7 @@ func (host *hostAccount) publishSettleWithGuestTx(
 	guestAmount string,
 	sig *xdr.DecoratedSignature,
 ) error {
+	fmt.Println("publish settle with guest tx")
 
 	tx, err := host.createAndSignSettleWithGuestTx(rsn, paymentTime, guestAmount)
 	if err != nil {
@@ -361,7 +362,9 @@ func (host *hostAccount) createAndSignSettleWithGuestTx(
 	return &txe, nil
 }
 
-func (host *hostAccount) publishSignSettleWithHostTx(rsn, paymentTime uint64, sig *xdr.DecoratedSignature) error{
+func (host *hostAccount) publishSignSettleWithHostTx(rsn, paymentTime uint64, sig *xdr.DecoratedSignature) error {
+	fmt.Println("publish settle with host tx")
+
 	tx, err := host.createAndSignSettleWithHostTx(rsn, paymentTime)
 	if err != nil {
 		return err
