@@ -90,17 +90,8 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		//msg *PaymentProposeMsg,
-		//escrowAddress,
-		//hostRatchetAddress string,
-		//bsn int64,
-		paymentAcceptMsg, err := guestAccount.receivePaymentProposeMsg(
-			paymentProposeMsg,
-			hostAccount.escrowKeyPair.Address(),
-			hostAccount.hostRatchetAccount.keyPair.Address(),
-			int64(hostAccount.baseSequenceNumber),
-		)
+		
+		paymentAcceptMsg, err := guestAccount.receivePaymentProposeMsg(paymentProposeMsg)
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -119,12 +119,14 @@ func (guest *guestAccount) receiveChannelProposeMsg(msg *ChannelProposeMsg) (*Ch
 // TODO(evg): guest should already know all args
 func (guest *guestAccount) receivePaymentProposeMsg(
 	msg *PaymentProposeMsg,
-	escrowAddress,
-	hostRatchetAddress string,
-	bsn int64,
 ) (*PaymentAcceptMsg, error) {
-	rsn := roundSequenceNumber(int(bsn), msg.RoundNumber)
-	ratchetTxForOffChainPayment, err := guest.createAndSignRatchetTxForHost(escrowAddress, hostRatchetAddress, msg.PaymentTime, rsn)
+	rsn := roundSequenceNumber(int(guest.baseSequenceNumber), msg.RoundNumber)
+	ratchetTxForOffChainPayment, err := guest.createAndSignRatchetTxForHost(
+		guest.cache.channelProposeMsg.ChannelID,
+		guest.cache.channelProposeMsg.HostRatchetAccount,
+		msg.PaymentTime,
+		rsn,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +136,7 @@ func (guest *guestAccount) receivePaymentProposeMsg(
 		msg.PaymentTime,
 		guest.keyPair.Address(),
 		msg.PaymentAmount,
-		escrowAddress,
+		guest.cache.channelProposeMsg.ChannelID,
 	)
 
 	txeGuest, err := tx.Sign(guest.keyPair.Seed())
