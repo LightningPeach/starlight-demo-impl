@@ -46,6 +46,11 @@ func (account accountType) String() string {
 	}
 }
 
+type hostMessageCache struct {
+	paymentProposeMsg *PaymentProposeMsg
+	// paymentAcceptMsg *PaymentAcceptMsg
+}
+
 type hostAccount struct {
 	selfKeyPair *keypair.Full
 
@@ -56,6 +61,8 @@ type hostAccount struct {
 	guestAddress string
 
 	baseSequenceNumber int
+
+	cache *hostMessageCache
 }
 
 func newHostAccount() (*hostAccount, error) {
@@ -85,6 +92,7 @@ func newHostAccount() (*hostAccount, error) {
 		escrowKeyPair:       escrowKeyPair,
 		hostRatchetAccount:  hostRatchetAccount,
 		guestRatchetAccount: guestRatchetAccount,
+		cache:               new(hostMessageCache),
 	}
 
 	fmt.Printf("balance: %v\n\n", hostAccount.loadBalance())
@@ -218,6 +226,23 @@ func (host *hostAccount) publishFundingTx(guestEscrowPubKey string) error {
 
 func (host *hostAccount) cleanupTx() {}
 
+func (host *hostAccount) publishRatchetTx(sig *xdr.DecoratedSignature) error {
+	fmt.Println("publish ratchet tx")
+	tx, err := host.createAndSignRatchetTxForSelf(
+		sig,
+		host.cache.paymentProposeMsg.PaymentTime,
+		roundSequenceNumber(host.baseSequenceNumber, host.cache.paymentProposeMsg.RoundNumber),
+	)
+	if err != nil {
+		return err
+	}
+	if err := host.publishTx(tx); err != nil {
+		showDetailError(err)
+		return err
+	}
+	return nil
+}
+
 func (host *hostAccount) createAndSignRatchetTxForSelf(
 	sig *xdr.DecoratedSignature,
 	paymentTime uint64,
@@ -296,7 +321,7 @@ func (host *hostAccount) createAndSignSettleWithGuestTx(
 	*build.TransactionEnvelopeBuilder,
 	error,
 ) {
-	
+
 	tx, err := createSettleWithGuestTx(
 		rsn,
 		paymentTime,
@@ -379,14 +404,16 @@ func (host *hostAccount) createPaymentProposeMsg(roundNumber int, guestAddress s
 		return nil, err
 	}
 
-	return &PaymentProposeMsg{
+	msg := &PaymentProposeMsg{
 		ChannelID:                host.escrowKeyPair.Address(),
 		RoundNumber:              roundNumber,
 		PaymentTime:              paymentTime,
 		PaymentAmount:            defaultPaymentAmount,
 		SenderSettleWithGuestSig: &settleWithGuestTx.E.Signatures[0],
 		SenderSettleWithHostSig:  &settleWithHostTx.E.Signatures[0],
-	}, nil
+	}
+	host.cache.paymentProposeMsg = msg
+	return msg, nil
 }
 
 func (host *hostAccount) loadSequenceNumber() int {
