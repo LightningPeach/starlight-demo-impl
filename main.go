@@ -116,20 +116,8 @@ func main() {
 
 		fmt.Println("SETTLE WITH HOST TX")
 		txCopy := paymentAcceptMsg.RecipientSettleWithHostSig
-		//fmt.Println(len(txCopy.E.Signatures))
-		//fmt.Println(txCopy.E.Signatures)
 		_ = txCopy
 
-		//tx, err := hostAccount.createAndSignSettleWithHostTx(uint64(rsn), paymentProposeMsg.PaymentTime)
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//tx.E.Signatures = append(tx.E.Signatures, *paymentAcceptMsg.RecipientSettleWithHostSig)
-		//
-		//if err := hostAccount.publishTx(tx); err != nil {
-		//	showDetailError(err)
-		//	log.Fatal(err)
-		//}
 		err = hostAccount.publishSignSettleWithHostTx(
 			uint64(rsn),
 			paymentProposeMsg.PaymentTime,
@@ -141,6 +129,5 @@ func main() {
 
 		fmt.Printf("host account's balance(after force close): %v\n\n", hostAccount.loadBalance())
 		fmt.Printf("guest account's balance(after force close): %v\n\n", loadBalance(guestAccount.keyPair.Address()))
-		_ = channelAcceptMsg
 	}
 }
