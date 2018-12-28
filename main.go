@@ -41,14 +41,14 @@ func main() {
 	}
 
 	channelProposeMsg := hostAccount.createChannelProposeMsg(guestAccount.keyPair.Address())
+	fmt.Println(channelProposeMsg)
 
-	fmt.Println("receiveChannelProposeMsg: ")
 	channelAcceptMsg, err := guestAccount.receiveChannelProposeMsg(channelProposeMsg)
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println(channelAcceptMsg)
 
-	fmt.Println("publish fundingTx")
 	if err := hostAccount.publishFundingTx(guestAccount.keyPair.Address()); err != nil {
 		log.Fatal(err)
 	}
@@ -90,11 +90,13 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		fmt.Println(paymentProposeMsg)
 
 		paymentAcceptMsg, err := guestAccount.receivePaymentProposeMsg(paymentProposeMsg)
 		if err != nil {
 			log.Fatal(err)
 		}
+		fmt.Println(paymentAcceptMsg)
 
 		fmt.Println("RATCHET TX")
 		txCopy := paymentAcceptMsg.RecipientRatchetSig

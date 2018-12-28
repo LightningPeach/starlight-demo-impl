@@ -138,6 +138,7 @@ func (host *hostAccount) setupAccountTx(account accountType) error {
 }
 
 func (host *hostAccount) publishFundingTx(guestEscrowPubKey string) error {
+	fmt.Println("publish funding tx")
 	host.guestAddress = guestEscrowPubKey
 	fundingTime := getBlockChainTime()
 
@@ -379,12 +380,12 @@ func (host *hostAccount) createPaymentProposeMsg(roundNumber int, guestAddress s
 	}
 
 	return &PaymentProposeMsg{
-		ChannelID:                host.selfKeyPair.Address(),
+		ChannelID:                host.escrowKeyPair.Address(),
 		RoundNumber:              roundNumber,
 		PaymentTime:              paymentTime,
 		PaymentAmount:            defaultPaymentAmount,
 		SenderSettleWithGuestSig: &settleWithGuestTx.E.Signatures[0],
-		SenderSettleWithHostSig:  settleWithHostTx,
+		SenderSettleWithHostSig:  &settleWithHostTx.E.Signatures[0],
 	}, nil
 }
 
