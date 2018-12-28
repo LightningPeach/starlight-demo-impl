@@ -316,28 +316,13 @@ func (host *hostAccount) createAndSignSettleWithGuestTx(
 }
 
 func (host *hostAccount) createAndSignSettleWithHostTx(rsn, paymentTime uint64) (*build.TransactionEnvelopeBuilder, error) {
-	tx, err := build.Transaction(
-		build.TestNetwork,
-		build.SourceAccount{AddressOrSeed: host.escrowKeyPair.Address()},
-		build.Sequence{Sequence: rsn + 3},
-		build.Timebounds{
-			MinTime: paymentTime + 2*defaultFinalityDelay + defaultMaxRoundDuration,
-		},
-		//Merge account EscrowAccount to HostAccount
-		//Merge account GuestRatchetAccount to HostAccount
-		//Merge account HostRatchetAccount to HostAccount
-		build.AccountMerge(
-			build.SourceAccount{AddressOrSeed: host.escrowKeyPair.Address()},
-			build.Destination{AddressOrSeed: host.selfKeyPair.Address()},
-		),
-		build.AccountMerge(
-			build.SourceAccount{AddressOrSeed: host.guestRatchetAccount.keyPair.Address()},
-			build.Destination{AddressOrSeed: host.selfKeyPair.Address()},
-		),
-		build.AccountMerge(
-			build.SourceAccount{AddressOrSeed: host.hostRatchetAccount.keyPair.Address()},
-			build.Destination{AddressOrSeed: host.selfKeyPair.Address()},
-		),
+	tx, err := createSettleWithHostTx(
+		rsn,
+		paymentTime,
+		host.escrowKeyPair.Address(),
+		host.guestRatchetAccount.keyPair.Address(),
+		host.hostRatchetAccount.keyPair.Address(),
+		host.selfKeyPair.Address(),
 	)
 	if err != nil {
 		return nil, err
