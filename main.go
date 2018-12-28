@@ -99,8 +99,9 @@ func main() {
 		}
 
 
-		fmt.Println("WAIT")
-		time.Sleep((2*defaultFinalityDelay + defaultMaxRoundDuration) * time.Second + 10 * time.Second)
+		secsToWait := 2*defaultFinalityDelay + defaultMaxRoundDuration + 10
+		fmt.Printf("waiting %v secs until settlement's txs will become valid", secsToWait)
+		time.Sleep(time.Duration(secsToWait) * time.Second)
 
 		err = hostAccount.publishSettleWithGuestTx(
 			uint64(rsn),

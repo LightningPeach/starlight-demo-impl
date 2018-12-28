@@ -74,7 +74,6 @@ func (guest *guestAccount) createAndSignSettleOnlyWithHostTx(
 		fundingTime,
 		roundSequenceNumber(guest.baseSequenceNumber, roundNumber),
 	)
-	fmt.Println("createSettleOnlyWithHostTx.MinTime", fundingTime+2*defaultFinalityDelay+defaultMaxRoundDuration)
 
 	txe, err := tx.Sign(guest.keyPair.Seed())
 	if err != nil {
