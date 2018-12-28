@@ -53,6 +53,8 @@ type hostAccount struct {
 	hostRatchetAccount  *ratchetAccount
 	guestRatchetAccount *ratchetAccount
 
+	guestAddress string
+
 	baseSequenceNumber int
 }
 
@@ -136,6 +138,7 @@ func (host *hostAccount) setupAccountTx(account accountType) error {
 }
 
 func (host *hostAccount) publishFundingTx(guestEscrowPubKey string) error {
+	host.guestAddress = guestEscrowPubKey
 	fundingTime := getBlockChainTime()
 
 	tx, err := build.Transaction(
@@ -284,11 +287,9 @@ func (host *hostAccount) settleOnlyWithHostTx(
 	return nil
 }
 
-// TODO(evg): try to submit it
 func (host *hostAccount) createSettleWithGuestTx(
 	rsn,
 	paymentTime uint64,
-	guestAddress,
 	guestAmount string,
 ) (
 	*build.TransactionEnvelopeBuilder,
@@ -298,7 +299,7 @@ func (host *hostAccount) createSettleWithGuestTx(
 	tx, err := createSettleWithGuestTx(
 		rsn,
 		paymentTime,
-		guestAddress,
+		host.guestAddress,
 		guestAmount,
 		host.escrowKeyPair.Address(),
 	)
@@ -393,7 +394,7 @@ func (host *hostAccount) createPaymentProposeMsg(roundNumber int, guestAddress s
 	rsn := roundSequenceNumber(host.baseSequenceNumber, roundNumber)
 	paymentTime := getBlockChainTime()
 
-	settleWithGuestTx, err := host.createSettleWithGuestTx(uint64(rsn), paymentTime, guestAddress, defaultPaymentAmount)
+	settleWithGuestTx, err := host.createSettleWithGuestTx(uint64(rsn), paymentTime, defaultPaymentAmount)
 	if err != nil {
 		return nil, err
 	}
