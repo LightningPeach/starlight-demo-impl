@@ -90,16 +90,6 @@ func createSettleWithGuestTx(
 			build.NativeAmount{Amount: guestAmount},
 		),
 	)
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	//txe, err := tx.Sign(host.escrowKeyPair.Seed())
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	//return &txe, nil
 }
 
 func createSettleWithHostTx(
@@ -138,9 +128,5 @@ func createSettleWithHostTx(
 		return nil, err
 	}
 
-	//txe, err := tx.Sign(host.escrowKeyPair.Seed())
-	//if err != nil {
-	//	return nil, err
-	//}
 	return tx, nil
 }

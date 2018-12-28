@@ -287,7 +287,7 @@ func (host *hostAccount) settleOnlyWithHostTx(
 	return nil
 }
 
-func (host *hostAccount) createSettleWithGuestTx(
+func (host *hostAccount) createAndSignSettleWithGuestTx(
 	rsn,
 	paymentTime uint64,
 	guestAmount string,
@@ -315,8 +315,7 @@ func (host *hostAccount) createSettleWithGuestTx(
 	return &txe, nil
 }
 
-// TODO(evg): try to submit it
-func (host *hostAccount) createSettleWithHostTx(rsn, paymentTime uint64) (*build.TransactionEnvelopeBuilder, error) {
+func (host *hostAccount) createAndSignSettleWithHostTx(rsn, paymentTime uint64) (*build.TransactionEnvelopeBuilder, error) {
 	tx, err := build.Transaction(
 		build.TestNetwork,
 		build.SourceAccount{AddressOrSeed: host.escrowKeyPair.Address()},
@@ -358,15 +357,9 @@ func (host *hostAccount) publishTx(txe *build.TransactionEnvelopeBuilder) error 
 	}
 
 	// And finally, send it off to Stellar!
-	resp, err := horizon.DefaultTestNetClient.SubmitTransaction(txeB64)
-	if err != nil {
+	if _, err := horizon.DefaultTestNetClient.SubmitTransaction(txeB64); err != nil {
 		return err
 	}
-
-	//fmt.Println("Successful Transaction:")
-	//fmt.Println("Ledger:", resp.Ledger)
-	//fmt.Println("Hash:", resp.Hash)
-	_ = resp
 
 	return nil
 }
@@ -387,21 +380,15 @@ func (host *hostAccount) createChannelProposeMsg(guestEscrowPubKey string) *Chan
 }
 
 func (host *hostAccount) createPaymentProposeMsg(roundNumber int, guestAddress string) (*PaymentProposeMsg, error) {
-	//  rsn,
-	//	paymentTime uint64,
-	//	guestAddress,
-	//	guestAmount string,
 	rsn := roundSequenceNumber(host.baseSequenceNumber, roundNumber)
 	paymentTime := getBlockChainTime()
 
-	settleWithGuestTx, err := host.createSettleWithGuestTx(uint64(rsn), paymentTime, defaultPaymentAmount)
+	settleWithGuestTx, err := host.createAndSignSettleWithGuestTx(uint64(rsn), paymentTime, defaultPaymentAmount)
 	if err != nil {
 		return nil, err
 	}
 
-	// rsn,
-	// paymentTime uint64
-	settleWithHostTx, err := host.createSettleWithHostTx(uint64(rsn), paymentTime)
+	settleWithHostTx, err := host.createAndSignSettleWithHostTx(uint64(rsn), paymentTime)
 	if err != nil {
 		return nil, err
 	}
