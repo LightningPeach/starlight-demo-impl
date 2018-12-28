@@ -4,8 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/stellar/go/build"
-	"github.com/stellar/go/clients/horizon"
-
 	//"github.com/stellar/go/build"
 	//"github.com/stellar/go/clients/horizon"
 	"log"
