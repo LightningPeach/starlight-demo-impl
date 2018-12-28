@@ -59,10 +59,6 @@ func (guest *guestAccount) createAndSignRatchetTxForHost(
 }
 
 func (guest *guestAccount) createAndSignSettleOnlyWithHostTx(
-	hostAddress,
-	escrowAddress,
-	guestRatchetAddress,
-	hostRatchetAddress string,
 	fundingTime uint64,
 	roundSequenceNumber int,
 ) (
@@ -71,10 +67,10 @@ func (guest *guestAccount) createAndSignSettleOnlyWithHostTx(
 ) {
 
 	tx, err := createSettleOnlyWithHostTx(
-		hostAddress,
-		escrowAddress,
-		guestRatchetAddress,
-		hostRatchetAddress,
+		guest.cache.channelProposeMsg.HostAccount,
+		guest.cache.channelProposeMsg.ChannelID,
+		guest.cache.channelProposeMsg.GuestRatchetAccount,
+		guest.cache.channelProposeMsg.HostRatchetAccount,
 		fundingTime,
 		roundSequenceNumber,
 	)
@@ -104,10 +100,6 @@ func (guest *guestAccount) receiveChannelProposeMsg(msg *ChannelProposeMsg) (*Ch
 	}
 
 	settleOnlyWithHostTx, err := guest.createAndSignSettleOnlyWithHostTx(
-		msg.HostAccount,
-		msg.ChannelID,
-		msg.GuestRatchetAccount,
-		msg.HostRatchetAccount,
 		msg.FundingTime,
 		rsn,
 	)
