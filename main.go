@@ -102,17 +102,7 @@ func main() {
 		txCopy := paymentAcceptMsg.RecipientRatchetSig
 		txCopy.Mutate(build.Sign{Seed: hostAccount.escrowKeyPair.Seed()})
 		if err := hostAccount.publishTx(paymentAcceptMsg.RecipientRatchetSig); err != nil {
-			fmt.Println("tx fail")
-			err2 := err.(*horizon.Error).Problem
-			fmt.Println("Type: ", err2.Type)
-			fmt.Println("Title: ", err2.Title)
-			fmt.Println("Status: ", err2.Status)
-			fmt.Println("Detail:", err2.Detail)
-			fmt.Println("Instance: ", err2.Instance)
-			for key, value := range err2.Extras {
-				fmt.Println("KEYVALUE: ", key, string(value))
-			}
-			// fmt.Println("Extras: ",   err2.Extras)
+			showDetailError(err)
 			log.Fatal(err)
 		}
 
@@ -138,17 +128,7 @@ func main() {
 		// txCopy.Mutate(build.Sign{Seed:})
 		_ = txCopy
 		if err := hostAccount.publishTx(paymentAcceptMsg.RecipientSettleWithGuestSig); err != nil {
-			fmt.Println("tx fail")
-			err2 := err.(*horizon.Error).Problem
-			fmt.Println("Type: ", err2.Type)
-			fmt.Println("Title: ", err2.Title)
-			fmt.Println("Status: ", err2.Status)
-			fmt.Println("Detail:", err2.Detail)
-			fmt.Println("Instance: ", err2.Instance)
-			for key, value := range err2.Extras {
-				fmt.Println("KEYVALUE: ", key, string(value))
-			}
-			// fmt.Println("Extras: ",   err2.Extras)
+			showDetailError(err)
 			log.Fatal(err)
 		}
 
@@ -158,17 +138,7 @@ func main() {
 		fmt.Println(txCopy.E.Signatures)
 		_ = txCopy
 		if err := hostAccount.publishTx(paymentAcceptMsg.RecipientSettleWithHostSig); err != nil {
-			fmt.Println("tx fail")
-			err2 := err.(*horizon.Error).Problem
-			fmt.Println("Type: ", err2.Type)
-			fmt.Println("Title: ", err2.Title)
-			fmt.Println("Status: ", err2.Status)
-			fmt.Println("Detail:", err2.Detail)
-			fmt.Println("Instance: ", err2.Instance)
-			for key, value := range err2.Extras {
-				fmt.Println("KEYVALUE: ", key, string(value))
-			}
-			// fmt.Println("Extras: ",   err2.Extras)
+			showDetailError(err)
 			log.Fatal(err)
 		}
 
