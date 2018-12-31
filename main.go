@@ -47,6 +47,7 @@ func main() {
 	fmt.Println(channelAcceptMsg)
 
 	if err := hostAccount.publishFundingTx(guestAccount.keyPair.Address()); err != nil {
+		showDetailError(err)
 		log.Fatal(err)
 	}
 
