@@ -177,7 +177,7 @@ func (guest *guestAccount) receiveHTLCPaymentProposeMsg(msg *HTLCPaymentProposeM
 		return nil, err
 	}
 
-	tx, err := createSettleOnlyWithHostAndActiveHtlcTx(
+	settleOnlyWithHostAndActiveHtlcTx, err := createSettleOnlyWithHostAndActiveHtlcTx(
 		guest.cache.channelProposeMsg.HostAccount,
 		msg.ChannelID,
 		guest.cache.channelProposeMsg.GuestRatchetAccount,
@@ -190,15 +190,16 @@ func (guest *guestAccount) receiveHTLCPaymentProposeMsg(msg *HTLCPaymentProposeM
 	if err != nil {
 		return nil, err
 	}
-
-	_ = tx
+	txe, err := settleOnlyWithHostAndActiveHtlcTx.Sign(guest.keyPair.Seed())
+	if err != nil {
+		return nil, err
+	}
 
 	return &HTLCPaymentAcceptMsg{
-		ChannelID:                   msg.ChannelID,
-		RoundNumber:                 msg.RoundNumber,
-		RecipientRatchetSig:         &ratchetTxForOffChainPayment.E.Signatures[0],
-		//RecipientSettleWithGuestSig: &txeGuest.E.Signatures[0],
-		//RecipientSettleWithHostSig:  &txeHost.E.Signatures[0],
+		ChannelID:           msg.ChannelID,
+		RoundNumber:         msg.RoundNumber,
+		RecipientRatchetSig: &ratchetTxForOffChainPayment.E.Signatures[0],
+		RecipientSettleOnlyWithHostAndActiveHtlcSig: &txe.E.Signatures[0],
 	}, nil
 }
 
