@@ -306,6 +306,7 @@ func (host *hostAccount) settleOnlyWithHostTx(
 		host.hostRatchetAccount.keyPair.Address(),
 		fundingTime,
 		rsn,
+		host.htlcResolutionAccount.keyPair.Address(),
 	)
 	if err != nil {
 		return err
@@ -398,12 +399,13 @@ func (host *hostAccount) createAndSignSettleWithHostTx(rsn, paymentTime uint64) 
 		host.guestRatchetAccount.keyPair.Address(),
 		host.hostRatchetAccount.keyPair.Address(),
 		host.selfKeyPair.Address(),
+		host.htlcResolutionAccount.keyPair.Address(),
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	txe, err := tx.Sign(host.escrowKeyPair.Seed())
+	txe, err := tx.Sign(host.escrowKeyPair.Seed(), host.htlcResolutionAccount.keyPair.Seed())
 	if err != nil {
 		return nil, err
 	}
@@ -426,16 +428,17 @@ func (host *hostAccount) publishTx(txe *build.TransactionEnvelopeBuilder) error 
 
 func (host *hostAccount) createChannelProposeMsg(guestEscrowPubKey string) *ChannelProposeMsg {
 	return &ChannelProposeMsg{
-		ChannelID:           host.escrowKeyPair.Address(),
-		GuestEscrowPubKey:   guestEscrowPubKey,
-		HostRatchetAccount:  host.hostRatchetAccount.keyPair.Address(),
-		GuestRatchetAccount: host.guestRatchetAccount.keyPair.Address(),
-		MaxRoundDuration:    defaultMaxRoundDuration,
-		FinalityDelay:       defaultFinalityDelay,
-		Feerate:             defaultFeerate,
-		HostAmount:          defaultHostAmount,
-		FundingTime:         getBlockChainTime(),
-		HostAccount:         host.selfKeyPair.Address(),
+		ChannelID:             host.escrowKeyPair.Address(),
+		GuestEscrowPubKey:     guestEscrowPubKey,
+		HostRatchetAccount:    host.hostRatchetAccount.keyPair.Address(),
+		GuestRatchetAccount:   host.guestRatchetAccount.keyPair.Address(),
+		MaxRoundDuration:      defaultMaxRoundDuration,
+		FinalityDelay:         defaultFinalityDelay,
+		Feerate:               defaultFeerate,
+		HostAmount:            defaultHostAmount,
+		FundingTime:           getBlockChainTime(),
+		HostAccount:           host.selfKeyPair.Address(),
+		HTLCResolutionAccount: host.htlcResolutionAccount.keyPair.Address(),
 	}
 }
 

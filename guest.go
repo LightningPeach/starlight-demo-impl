@@ -73,6 +73,7 @@ func (guest *guestAccount) createAndSignSettleOnlyWithHostTx(
 		guest.cache.channelProposeMsg.HostRatchetAccount,
 		fundingTime,
 		roundSequenceNumber(guest.baseSequenceNumber, roundNumber),
+		guest.cache.channelProposeMsg.HTLCResolutionAccount,
 	)
 
 	txe, err := tx.Sign(guest.keyPair.Seed())
@@ -144,6 +145,7 @@ func (guest *guestAccount) receivePaymentProposeMsg(msg *PaymentProposeMsg) (*Pa
 		guest.cache.channelProposeMsg.GuestRatchetAccount,
 		guest.cache.channelProposeMsg.HostRatchetAccount,
 		guest.cache.channelProposeMsg.HostAccount,
+		guest.cache.channelProposeMsg.HTLCResolutionAccount,
 	)
 	if err != nil {
 		return nil, err

@@ -39,7 +39,7 @@ func createSettleOnlyWithHostTx(
 	hostRatchetAddress string,
 	fundingTime uint64,
 	roundSequenceNumber int,
-	// htlcResolutionAccount,
+	htlcResolutionAddress string,
 ) (
 	*build.TransactionBuilder,
 	error,
@@ -62,6 +62,10 @@ func createSettleOnlyWithHostTx(
 		),
 		build.AccountMerge(
 			build.SourceAccount{AddressOrSeed: hostRatchetAddress},
+			build.Destination{AddressOrSeed: hostAddress},
+		),
+		build.AccountMerge(
+			build.SourceAccount{AddressOrSeed: htlcResolutionAddress},
 			build.Destination{AddressOrSeed: hostAddress},
 		),
 	)
@@ -99,7 +103,8 @@ func createSettleWithHostTx(
 	escrowAddress,
 	guestRatchetAddress,
 	hostRatchetAddress,
-	hostAddress string,
+	hostAddress,
+	htlcResolutionAddress string,
 ) (*build.TransactionBuilder, error) {
 
 	tx, err := build.Transaction(
@@ -122,6 +127,10 @@ func createSettleWithHostTx(
 		),
 		build.AccountMerge(
 			build.SourceAccount{AddressOrSeed: hostRatchetAddress},
+			build.Destination{AddressOrSeed: hostAddress},
+		),
+		build.AccountMerge(
+			build.SourceAccount{AddressOrSeed: htlcResolutionAddress},
 			build.Destination{AddressOrSeed: hostAddress},
 		),
 	)
