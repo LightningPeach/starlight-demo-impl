@@ -140,6 +140,14 @@ func main() {
 		}
 		fmt.Println(paymentProposeMsg)
 
+		paymentAcceptMsg, err := guestAccount.receiveHTLCPaymentProposeMsg(paymentProposeMsg)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(paymentAcceptMsg)
+
+		
+
 		return
 	}
 }

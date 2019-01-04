@@ -153,3 +153,11 @@ func (msg *HTLCPaymentProposeMsg) String() string {
 		msg.PaymentAmount,
 	)
 }
+
+type HTLCPaymentAcceptMsg struct {
+	ChannelID                   string
+	RoundNumber                 int
+	//RecipientRatchetSig         *xdr.DecoratedSignature
+	//RecipientSettleWithGuestSig *xdr.DecoratedSignature
+	//RecipientSettleWithHostSig  *xdr.DecoratedSignature
+}

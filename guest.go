@@ -169,6 +169,61 @@ func (guest *guestAccount) receivePaymentProposeMsg(msg *PaymentProposeMsg) (*Pa
 	}, nil
 }
 
+func (guest *guestAccount) receiveHTLCPaymentProposeMsg(msg *HTLCPaymentProposeMsg) (*HTLCPaymentAcceptMsg, error) {
+	//rsn := roundSequenceNumber(int(guest.baseSequenceNumber), msg.RoundNumber)
+	//ratchetTxForOffChainPayment, err := guest.createAndSignRatchetTxForHost(msg.PaymentTime, msg.RoundNumber)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
+	//tx, err := createSettleWithGuestTx(
+	//	uint64(rsn),
+	//	msg.PaymentTime,
+	//	guest.keyPair.Address(),
+	//	msg.PaymentAmount,
+	//	guest.cache.channelProposeMsg.ChannelID,
+	//)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
+	//txeGuest, err := tx.Sign(guest.keyPair.Seed())
+	//if err != nil {
+	//	return nil, err
+	//}
+	// txeGuest.E.Signatures = append(txeGuest.E.Signatures, *msg.SenderSettleWithGuestSig)
+
+	//tx, err = createSettleWithHostTx(
+	//	uint64(rsn),
+	//	msg.PaymentTime,
+	//	msg.ChannelID,
+	//	guest.cache.channelProposeMsg.GuestRatchetAccount,
+	//	guest.cache.channelProposeMsg.HostRatchetAccount,
+	//	guest.cache.channelProposeMsg.HostAccount,
+	//	guest.cache.channelProposeMsg.HTLCResolutionAccount,
+	//)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
+	//txeHost, err := tx.Sign(guest.keyPair.Seed())
+	//if err != nil {
+	//	return nil, err
+	//}
+	//txeHost.E.Signatures = append(txeHost.E.Signatures, *msg.SenderSettleWithHostSig)
+
+	//copyTxHost := msg.SenderSettleWithHostSig
+	//copyTxHost.Mutate(build.Sign{Seed: guest.keyPair.Seed()})
+
+	return &HTLCPaymentAcceptMsg{
+		ChannelID:                   msg.ChannelID,
+		RoundNumber:                 msg.RoundNumber,
+		//RecipientRatchetSig:         &ratchetTxForOffChainPayment.E.Signatures[0],
+		//RecipientSettleWithGuestSig: &txeGuest.E.Signatures[0],
+		//RecipientSettleWithHostSig:  &txeHost.E.Signatures[0],
+	}, nil
+}
+
 func (guest *guestAccount) loadSequenceNumber() int {
 	sequenceNumber, err := loadSequenceNumber(guest.keyPair.Address())
 	if err != nil {
