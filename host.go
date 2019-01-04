@@ -414,6 +414,35 @@ func (host *hostAccount) createAndSignSettleWithHostTx(rsn, paymentTime uint64) 
 	return &txe, nil
 }
 
+func (host *hostAccount) createAndSignSettleOnlyWithHostAndActiveHtlcTx(
+	rsn,
+	paymentTime uint64,
+	sig *xdr.DecoratedSignature,
+) (*build.TransactionEnvelopeBuilder, error) {
+		
+	tx, err := createSettleOnlyWithHostAndActiveHtlcTx(
+		host.selfKeyPair.Address(),
+		host.escrowKeyPair.Address(),
+		host.guestRatchetAccount.keyPair.Address(),
+		host.hostRatchetAccount.keyPair.Address(),
+		paymentTime,
+		int(rsn),
+		host.htlcResolutionAccount.keyPair.Address(),
+		defaultPaymentAmount,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	txe, err := tx.Sign(host.escrowKeyPair.Seed(), host.htlcResolutionAccount.keyPair.Seed())
+	if err != nil {
+		return nil, err
+	}
+	txe.E.Signatures = append(txe.E.Signatures, *sig)
+
+	return &txe, nil
+}
+
 func (host *hostAccount) publishTx(txe *build.TransactionEnvelopeBuilder) error {
 	txeB64, err := txe.Base64()
 	if err != nil {

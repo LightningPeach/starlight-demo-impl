@@ -155,19 +155,31 @@ func main() {
 		}
 
 
-		//secsToWait := 2*defaultFinalityDelay + defaultMaxRoundDuration + 10
-		//fmt.Printf("waiting %v secs until settlement's txs will become valid", secsToWait)
-		//time.Sleep(time.Duration(secsToWait) * time.Second)
-		//
-		//err = hostAccount.settleOnlyWithHostTx(
-		//	uint64(rsn),
-		//	paymentProposeMsg.PaymentTime,
-		//	defaultPaymentAmount,
-		//	paymentAcceptMsg.RecipientSettleWithGuestSig,
-		//)
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
+		secsToWait := 2*defaultFinalityDelay + defaultMaxRoundDuration + 10
+		fmt.Printf("waiting %v secs until settlement's txs will become valid\n", secsToWait)
+		time.Sleep(time.Duration(secsToWait) * time.Second)
+
+		txe, err := hostAccount.createAndSignSettleOnlyWithHostAndActiveHtlcTx(
+			uint64(rsn),
+			paymentProposeMsg.PaymentTime,
+
+			paymentAcceptMsg.RecipientSettleOnlyWithHostAndActiveHtlcSig,
+			//uint64(rsn),
+			//paymentProposeMsg.PaymentTime,
+			//defaultPaymentAmount,
+			//paymentAcceptMsg.RecipientSettleWithGuestSig,
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if err := hostAccount.publishTx(txe); err != nil {
+			showDetailError(err)
+			log.Fatal(err)
+		}
+
+		fmt.Printf("host account's balance(after force close): %v\n\n", hostAccount.loadBalance())
+		fmt.Printf("guest account's balance(after force close): %v\n\n", loadBalance(guestAccount.keyPair.Address()))
 
 		return
 	}
