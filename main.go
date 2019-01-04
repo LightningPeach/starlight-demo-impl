@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"flag"
 	"fmt"
 	//"github.com/stellar/go/build"
@@ -134,6 +135,9 @@ func main() {
 	}
 
 	if *htlcPayment {
+		rHash := guestAccount.addInvoice()
+		fmt.Printf("hex-encoded rHash: %v\n", hex.EncodeToString(rHash[:]))
+
 		paymentProposeMsg, err := hostAccount.createHTLCPaymentProposeMsg(1, guestAccount.keyPair.Address())
 		if err != nil {
 			log.Fatal(err)
@@ -146,7 +150,7 @@ func main() {
 		}
 		fmt.Println(paymentAcceptMsg)
 
-		
+
 
 		return
 	}

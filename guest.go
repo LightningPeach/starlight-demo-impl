@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"github.com/stellar/go/build"
 	"github.com/stellar/go/keypair"
@@ -222,6 +223,12 @@ func (guest *guestAccount) receiveHTLCPaymentProposeMsg(msg *HTLCPaymentProposeM
 		//RecipientSettleWithGuestSig: &txeGuest.E.Signatures[0],
 		//RecipientSettleWithHostSig:  &txeHost.E.Signatures[0],
 	}, nil
+}
+
+func (guest *guestAccount) addInvoice() [sha256.Size]byte {
+	debugR := [32]byte{}
+	rHash := sha256.Sum256(debugR[:])
+	return rHash
 }
 
 func (guest *guestAccount) loadSequenceNumber() int {
