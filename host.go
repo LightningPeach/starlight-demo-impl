@@ -468,6 +468,17 @@ func (host *hostAccount) createPaymentProposeMsg(roundNumber int, guestAddress s
 	return msg, nil
 }
 
+func (host *hostAccount) createHTLCPaymentProposeMsg(roundNumber int, guestAddress string) (*HTLCPaymentProposeMsg, error) {
+	paymentTime := getBlockChainTime()
+
+	return &HTLCPaymentProposeMsg{
+		ChannelID:                host.escrowKeyPair.Address(),
+		RoundNumber:              roundNumber,
+		PaymentTime:              paymentTime,
+		PaymentAmount:            defaultPaymentAmount,
+	}, nil
+}
+
 func (host *hostAccount) loadSequenceNumber() int {
 	sequenceNumber, err := loadSequenceNumber(host.selfKeyPair.Address())
 	if err != nil {

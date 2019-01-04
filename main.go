@@ -12,6 +12,7 @@ import (
 func main() {
 	unilateralClose := flag.Bool("unilateral_close", false, "")
 	payment := flag.Bool("payment", false, "")
+	htlcPayment := flag.Bool("htlc_payment", false, "")
 	flag.Parse()
 
 	fmt.Println("starlight_demo")
@@ -128,5 +129,11 @@ func main() {
 
 		fmt.Printf("host account's balance(after force close): %v\n\n", hostAccount.loadBalance())
 		fmt.Printf("guest account's balance(after force close): %v\n\n", loadBalance(guestAccount.keyPair.Address()))
+
+		return
+	}
+
+	if *htlcPayment {
+		return
 	}
 }
