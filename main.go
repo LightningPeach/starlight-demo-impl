@@ -28,6 +28,9 @@ func main() {
 	if err := hostAccount.setupAccountTx(guestRatchetAccount); err != nil {
 		log.Fatal(err)
 	}
+	if err := hostAccount.setupAccountTx(htlcResolutionAccountType); err != nil {
+		log.Fatal(err)
+	}
 	if err := hostAccount.setupAccountTx(escrowAccount); err != nil {
 		log.Fatal(err)
 	}

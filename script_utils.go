@@ -39,6 +39,7 @@ func createSettleOnlyWithHostTx(
 	hostRatchetAddress string,
 	fundingTime uint64,
 	roundSequenceNumber int,
+	// htlcResolutionAccount,
 ) (
 	*build.TransactionBuilder,
 	error,

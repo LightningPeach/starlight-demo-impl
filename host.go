@@ -30,6 +30,7 @@ type accountType uint8
 const (
 	hostRatchetAccount accountType = iota
 	guestRatchetAccount
+	htlcResolutionAccountType
 	escrowAccount
 )
 
@@ -39,6 +40,8 @@ func (account accountType) String() string {
 		return "<host_ratchet_account>"
 	case guestRatchetAccount:
 		return "<guest_ratchet_account>"
+	case htlcResolutionAccountType:
+		return "<htlc_resolution_account_type>"
 	case escrowAccount:
 		return "<escrow_account>"
 	default:
@@ -54,9 +57,10 @@ type hostMessageCache struct {
 type hostAccount struct {
 	selfKeyPair *keypair.Full
 
-	escrowKeyPair       *keypair.Full
-	hostRatchetAccount  *ratchetAccount
-	guestRatchetAccount *ratchetAccount
+	escrowKeyPair         *keypair.Full
+	hostRatchetAccount    *ratchetAccount
+	guestRatchetAccount   *ratchetAccount
+	htlcResolutionAccount *htlcResolutionAccount
 
 	guestAddress string
 
@@ -87,12 +91,18 @@ func newHostAccount() (*hostAccount, error) {
 		return nil, err
 	}
 
+	htlcResolutionAccount, err := newHTLCResolutionAccount()
+	if err != nil {
+		return nil, err
+	}
+
 	hostAccount := &hostAccount{
-		selfKeyPair:         selfKeyPair,
-		escrowKeyPair:       escrowKeyPair,
-		hostRatchetAccount:  hostRatchetAccount,
-		guestRatchetAccount: guestRatchetAccount,
-		cache:               new(hostMessageCache),
+		selfKeyPair:           selfKeyPair,
+		escrowKeyPair:         escrowKeyPair,
+		hostRatchetAccount:    hostRatchetAccount,
+		guestRatchetAccount:   guestRatchetAccount,
+		htlcResolutionAccount: htlcResolutionAccount,
+		cache:                 new(hostMessageCache),
 	}
 
 	fmt.Printf("balance: %v\n\n", hostAccount.loadBalance())
@@ -107,6 +117,8 @@ func (host *hostAccount) setupAccountTx(account accountType) error {
 		dest = host.hostRatchetAccount.keyPair.Address()
 	case guestRatchetAccount:
 		dest = host.guestRatchetAccount.keyPair.Address()
+	case htlcResolutionAccountType:
+		dest = host.htlcResolutionAccount.keyPair.Address()
 	case escrowAccount:
 		dest = host.escrowKeyPair.Address()
 	}
