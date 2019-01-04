@@ -150,7 +150,24 @@ func main() {
 		}
 		fmt.Println(paymentAcceptMsg)
 
+		if err := hostAccount.publishRatchetTx(paymentAcceptMsg.RecipientRatchetSig); err != nil {
+			log.Fatal(err)
+		}
 
+
+		//secsToWait := 2*defaultFinalityDelay + defaultMaxRoundDuration + 10
+		//fmt.Printf("waiting %v secs until settlement's txs will become valid", secsToWait)
+		//time.Sleep(time.Duration(secsToWait) * time.Second)
+		//
+		//err = hostAccount.settleOnlyWithHostTx(
+		//	uint64(rsn),
+		//	paymentProposeMsg.PaymentTime,
+		//	defaultPaymentAmount,
+		//	paymentAcceptMsg.RecipientSettleWithGuestSig,
+		//)
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
 
 		return
 	}

@@ -53,6 +53,7 @@ func (account accountType) String() string {
 type hostMessageCache struct {
 	paymentProposeMsg *PaymentProposeMsg
 	// paymentAcceptMsg *PaymentAcceptMsg
+	htlcPaymentProposeMsg *HTLCPaymentProposeMsg
 }
 
 type hostAccount struct {
@@ -243,8 +244,8 @@ func (host *hostAccount) publishRatchetTx(sig *xdr.DecoratedSignature) error {
 	fmt.Println("publish ratchet tx")
 	tx, err := host.createAndSignRatchetTxForSelf(
 		sig,
-		host.cache.paymentProposeMsg.PaymentTime,
-		roundSequenceNumber(host.baseSequenceNumber, host.cache.paymentProposeMsg.RoundNumber),
+		host.cache.htlcPaymentProposeMsg.PaymentTime,
+		roundSequenceNumber(host.baseSequenceNumber, host.cache.htlcPaymentProposeMsg.RoundNumber),
 	)
 	if err != nil {
 		return err
@@ -477,13 +478,15 @@ func (host *hostAccount) createHTLCPaymentProposeMsg(
 
 	paymentTime := getBlockChainTime()
 
-	return &HTLCPaymentProposeMsg{
+	msg := &HTLCPaymentProposeMsg{
 		ChannelID:     host.escrowKeyPair.Address(),
 		RoundNumber:   roundNumber,
 		PaymentTime:   paymentTime,
 		PaymentAmount: defaultPaymentAmount,
 		RHash:         rHash,
-	}, nil
+	}
+	host.cache.htlcPaymentProposeMsg = msg
+	return msg, nil
 }
 
 func (host *hostAccount) loadSequenceNumber() int {
