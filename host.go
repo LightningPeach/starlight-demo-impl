@@ -219,6 +219,24 @@ func (host *hostAccount) publishFundingTx(guestEscrowPubKey string) error {
 				Weight:  1,
 			},
 		),
+		// htlcResolutionAccountType
+		build.Payment(
+			build.Destination{AddressOrSeed: host.htlcResolutionAccount.keyPair.Address()},
+			build.NativeAmount{Amount: "1"},
+		),
+		build.SetOptions(
+			build.SourceAccount{AddressOrSeed: host.htlcResolutionAccount.keyPair.Address()},
+			build.MasterWeight(0),
+			build.SetThresholds(3, 3, 3),
+			build.Signer{
+				Address: host.escrowKeyPair.Address(),
+				Weight: 1,
+			},
+			build.Signer{
+				Address: guestEscrowPubKey,
+				Weight: 2,
+			},
+		),
 	)
 	if err != nil {
 		return err
@@ -230,6 +248,7 @@ func (host *hostAccount) publishFundingTx(guestEscrowPubKey string) error {
 		host.escrowKeyPair.Seed(),
 		host.hostRatchetAccount.keyPair.Seed(),
 		host.guestRatchetAccount.keyPair.Seed(),
+		host.htlcResolutionAccount.keyPair.Seed(),
 	)
 	if err != nil {
 		return err

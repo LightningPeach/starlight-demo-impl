@@ -159,6 +159,7 @@ func main() {
 		fmt.Printf("waiting %v secs until settlement's txs will become valid\n", secsToWait)
 		time.Sleep(time.Duration(secsToWait) * time.Second)
 
+		fmt.Println("createAndSignSettleOnlyWithHostAndActiveHtlcTx()")
 		txe, err := hostAccount.createAndSignSettleOnlyWithHostAndActiveHtlcTx(
 			uint64(rsn),
 			paymentProposeMsg.PaymentTime,
