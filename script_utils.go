@@ -140,3 +140,47 @@ func createSettleWithHostTx(
 
 	return tx, nil
 }
+
+func createSettleOnlyWithHostAndActiveHtlcTx(
+	hostAddress,
+	escrowAddress,
+	guestRatchetAddress,
+	hostRatchetAddress string,
+	fundingTime uint64,
+	roundSequenceNumber int,
+	htlcResolutionAddress,
+	htlcAmount string,
+) (
+	*build.TransactionBuilder,
+	error,
+) {
+
+	return build.Transaction(
+		build.TestNetwork,
+		build.SourceAccount{AddressOrSeed: escrowAddress},
+		build.Sequence{Sequence: uint64(roundSequenceNumber) + 2},
+		build.Timebounds{
+			MinTime: fundingTime + 2*defaultFinalityDelay + defaultMaxRoundDuration,
+		},
+		build.Payment(
+			build.Destination{AddressOrSeed: htlcResolutionAddress},
+			build.NativeAmount{Amount: htlcAmount},
+		),
+		build.AccountMerge(
+			build.SourceAccount{AddressOrSeed: escrowAddress},
+			build.Destination{AddressOrSeed: hostAddress},
+		),
+		build.AccountMerge(
+			build.SourceAccount{AddressOrSeed: guestRatchetAddress},
+			build.Destination{AddressOrSeed: hostAddress},
+		),
+		build.AccountMerge(
+			build.SourceAccount{AddressOrSeed: hostRatchetAddress},
+			build.Destination{AddressOrSeed: hostAddress},
+		),
+		build.AccountMerge(
+			build.SourceAccount{AddressOrSeed: htlcResolutionAddress},
+			build.Destination{AddressOrSeed: hostAddress},
+		),
+	)
+}

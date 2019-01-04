@@ -134,6 +134,12 @@ func main() {
 	}
 
 	if *htlcPayment {
+		paymentProposeMsg, err := hostAccount.createHTLCPaymentProposeMsg(1, guestAccount.keyPair.Address())
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(paymentProposeMsg)
+
 		return
 	}
 }

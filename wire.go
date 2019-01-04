@@ -135,3 +135,21 @@ type HTLCPaymentProposeMsg struct {
 	//SenderSettleWithGuestSig *xdr.DecoratedSignature // (or empty)
 	//SenderSettleWithHostSig  *xdr.DecoratedSignature
 }
+
+func (msg *HTLCPaymentProposeMsg) String() string {
+	tmpl := `
+################### HTLCPaymentProposeMsg |Host -> Guest| ###############
+	ChannelID                %v
+	RoundNumber              %v
+	PaymentTime              %v
+	PaymentAmount            %v
+#####################################################################
+	`
+	return fmt.Sprintf(
+		tmpl,
+		msg.ChannelID,
+		msg.RoundNumber,
+		msg.PaymentTime,
+		msg.PaymentAmount,
+	)
+}
