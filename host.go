@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"github.com/stellar/go/build"
 	"github.com/stellar/go/clients/horizon"
@@ -468,14 +469,20 @@ func (host *hostAccount) createPaymentProposeMsg(roundNumber int, guestAddress s
 	return msg, nil
 }
 
-func (host *hostAccount) createHTLCPaymentProposeMsg(roundNumber int, guestAddress string) (*HTLCPaymentProposeMsg, error) {
+func (host *hostAccount) createHTLCPaymentProposeMsg(
+	roundNumber int,
+	guestAddress string,
+	rHash [sha256.Size]byte,
+) (*HTLCPaymentProposeMsg, error) {
+
 	paymentTime := getBlockChainTime()
 
 	return &HTLCPaymentProposeMsg{
-		ChannelID:                host.escrowKeyPair.Address(),
-		RoundNumber:              roundNumber,
-		PaymentTime:              paymentTime,
-		PaymentAmount:            defaultPaymentAmount,
+		ChannelID:     host.escrowKeyPair.Address(),
+		RoundNumber:   roundNumber,
+		PaymentTime:   paymentTime,
+		PaymentAmount: defaultPaymentAmount,
+		RHash:         rHash,
 	}, nil
 }
 

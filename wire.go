@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"github.com/stellar/go/xdr"
 )
@@ -132,6 +134,7 @@ type HTLCPaymentProposeMsg struct {
 	RoundNumber   int
 	PaymentTime   uint64
 	PaymentAmount string
+	RHash         [sha256.Size]byte
 	//SenderSettleWithGuestSig *xdr.DecoratedSignature // (or empty)
 	//SenderSettleWithHostSig  *xdr.DecoratedSignature
 }
@@ -143,6 +146,7 @@ func (msg *HTLCPaymentProposeMsg) String() string {
 	RoundNumber              %v
 	PaymentTime              %v
 	PaymentAmount            %v
+	RHash                    %v
 #####################################################################
 	`
 	return fmt.Sprintf(
@@ -151,12 +155,13 @@ func (msg *HTLCPaymentProposeMsg) String() string {
 		msg.RoundNumber,
 		msg.PaymentTime,
 		msg.PaymentAmount,
+		hex.EncodeToString(msg.RHash[:]),
 	)
 }
 
 type HTLCPaymentAcceptMsg struct {
-	ChannelID                   string
-	RoundNumber                 int
+	ChannelID   string
+	RoundNumber int
 	//RecipientRatchetSig         *xdr.DecoratedSignature
 	//RecipientSettleWithGuestSig *xdr.DecoratedSignature
 	//RecipientSettleWithHostSig  *xdr.DecoratedSignature

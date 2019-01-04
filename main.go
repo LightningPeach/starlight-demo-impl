@@ -138,7 +138,7 @@ func main() {
 		rHash := guestAccount.addInvoice()
 		fmt.Printf("hex-encoded rHash: %v\n", hex.EncodeToString(rHash[:]))
 
-		paymentProposeMsg, err := hostAccount.createHTLCPaymentProposeMsg(1, guestAccount.keyPair.Address())
+		paymentProposeMsg, err := hostAccount.createHTLCPaymentProposeMsg(1, guestAccount.keyPair.Address(), rHash)
 		if err != nil {
 			log.Fatal(err)
 		}
