@@ -232,6 +232,9 @@ func (host *hostAccount) publishFundingTx(guestEscrowPubKey string) error {
 				Address: host.escrowKeyPair.Address(),
 				Weight: 1,
 			},
+		),
+		build.SetOptions(
+			build.SourceAccount{AddressOrSeed: host.htlcResolutionAccount.keyPair.Address()},
 			build.Signer{
 				Address: guestEscrowPubKey,
 				Weight: 2,
@@ -453,7 +456,7 @@ func (host *hostAccount) createAndSignSettleOnlyWithHostAndActiveHtlcTx(
 		return nil, err
 	}
 
-	txe, err := tx.Sign(host.escrowKeyPair.Seed(), host.htlcResolutionAccount.keyPair.Seed())
+	txe, err := tx.Sign(host.escrowKeyPair.Seed())
 	if err != nil {
 		return nil, err
 	}

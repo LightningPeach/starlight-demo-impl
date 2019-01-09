@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/stellar/go/build"
 )
 
@@ -154,6 +155,29 @@ func createSettleOnlyWithHostAndActiveHtlcTx(
 	*build.TransactionBuilder,
 	error,
 ) {
+	fmt.Println("@\n\n ############################################################ @\n\n")
+	tmpl := `
+	hostAddress           %v
+	escrowAddress         %v
+	guestRatchetAddress   %v
+	hostRatchetAddress    %v
+	fundingTime           %v
+	roundSequenceNumber   %v
+	htlcResolutionAddress %v
+	htlcAmount            %v
+	`
+	fmt.Printf(
+		tmpl,
+		hostAddress,
+		escrowAddress,
+		guestRatchetAddress,
+		hostRatchetAddress,
+		fundingTime,
+		roundSequenceNumber,
+		htlcResolutionAddress,
+		htlcAmount,
+	)
+	fmt.Println("@\n\n ############################################################ @\n\n")
 
 	return build.Transaction(
 		build.TestNetwork,

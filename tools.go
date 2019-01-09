@@ -29,7 +29,7 @@ func loadSequenceNumber(address string) (int, error) {
 func loadBalance(address string) string {
 	account, err := horizon.DefaultTestNetClient.LoadAccount(address)
 	if err != nil {
-		log.Fatal(escrowAccount)
+		log.Fatal(err)
 	}
 	return account.Balances[0].Balance
 }
