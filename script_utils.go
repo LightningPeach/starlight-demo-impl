@@ -245,3 +245,21 @@ func createHtlcTimeoutTx(htlcResolutionAddress, hostAddress string) (*build.Tran
 	)
 	return tx, err
 }
+
+func createHtlcSuccessTx(htlcResolutionAddress, guestAddress string) (*build.TransactionBuilder, error) {
+	sequence, err := loadSequenceNumber(htlcResolutionAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := build.Transaction(
+		build.TestNetwork,
+		build.SourceAccount{AddressOrSeed: htlcResolutionAddress},
+		build.Sequence{Sequence: uint64(sequence) + 1},
+		build.Payment(
+			build.SourceAccount{AddressOrSeed: htlcResolutionAddress},
+			build.Destination{AddressOrSeed: guestAddress},
+		),
+	)
+	return tx, err
+}
