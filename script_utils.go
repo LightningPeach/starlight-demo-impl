@@ -262,8 +262,9 @@ func createHtlcSuccessTx(htlcResolutionAddress, guestAddress string) (*build.Tra
 		build.SourceAccount{AddressOrSeed: htlcResolutionAddress},
 		build.Sequence{Sequence: uint64(sequence) + 1},
 		build.Payment(
-			build.SourceAccount{AddressOrSeed: htlcResolutionAddress},
+			// build.SourceAccount{AddressOrSeed: htlcResolutionAddress},
 			build.Destination{AddressOrSeed: guestAddress},
+			build.NativeAmount{Amount: "100"},
 		),
 	)
 	return tx, err

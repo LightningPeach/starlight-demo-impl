@@ -87,7 +87,7 @@ func (guest *guestAccount) createAndSignSettleOnlyWithHostTx(
 }
 
 func (guest *guestAccount) createAndSignHtlcSuccessTx(htlcResolutionAddress string, paymentTime uint64) (*build.TransactionEnvelopeBuilder, error) {
-	tx, err := createHtlcTimeoutTx(htlcResolutionAddress, guest.keyPair.Address(), paymentTime)
+	tx, err := createHtlcSuccessTx(htlcResolutionAddress, guest.keyPair.Address())
 	if err != nil {
 		return nil, err
 	}
