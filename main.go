@@ -179,6 +179,20 @@ func main() {
 			log.Fatal(err)
 		}
 
+		htlcTimeoutTxe, err := hostAccount.createAndSignHtlcTimeoutTx(paymentAcceptMsg.RecipientHtlcTimeoutSig)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println(loadBalance(hostAccount.htlcResolutionAccount.keyPair.Address()))
+		// time.Sleep(time.Second * 5)
+
+		fmt.Println("publish htlcTimeoutTxe")
+		if err := hostAccount.publishTx(htlcTimeoutTxe); err != nil {
+			showDetailError(err)
+			log.Fatal(err)
+		}
+
 		fmt.Printf("host account's balance(after force close): %v\n\n", hostAccount.loadBalance())
 		fmt.Printf("guest account's balance(after force close): %v\n\n", loadBalance(guestAccount.keyPair.Address()))
 

@@ -199,7 +199,7 @@ func createSettleOnlyWithHostAndActiveHtlcTx(
 		},
 		build.Payment(
 			build.Destination{AddressOrSeed: htlcResolutionAddress},
-			build.NativeAmount{Amount: htlcAmount},
+			build.NativeAmount{Amount: "100.00002"}, // defaultPaymentAmount + fee
 		),
 		build.AccountMerge(
 			build.SourceAccount{AddressOrSeed: escrowAddress},
@@ -225,12 +225,22 @@ func createSettleOnlyWithHostAndActiveHtlcTx(
 }
 
 func createHtlcTimeoutTx(htlcResolutionAddress, hostAddress string) (*build.TransactionBuilder, error) {
+	sequence, err := loadSequenceNumber(htlcResolutionAddress)
+	if err != nil {
+		return nil, err
+	}
+
 	tx, err := build.Transaction(
 		build.TestNetwork,
 		build.SourceAccount{AddressOrSeed: htlcResolutionAddress},
+		build.Sequence{Sequence: uint64(sequence) + 1},
 		build.Payment(
 			build.Destination{AddressOrSeed: hostAddress},
 			build.NativeAmount{Amount: defaultPaymentAmount},
+		),
+		build.AccountMerge(
+			build.SourceAccount{AddressOrSeed: htlcResolutionAddress},
+			build.Destination{AddressOrSeed: hostAddress},
 		),
 	)
 	return tx, err

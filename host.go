@@ -222,7 +222,7 @@ func (host *hostAccount) publishFundingTx(guestEscrowPubKey string) error {
 		// htlcResolutionAccountType
 		build.Payment(
 			build.Destination{AddressOrSeed: host.htlcResolutionAccount.keyPair.Address()},
-			build.NativeAmount{Amount: "1"},
+			build.NativeAmount{Amount: "1.5"},
 		),
 		build.SetOptions(
 			build.SourceAccount{AddressOrSeed: host.htlcResolutionAccount.keyPair.Address()},
@@ -461,6 +461,21 @@ func (host *hostAccount) createAndSignSettleOnlyWithHostAndActiveHtlcTx(
 		return nil, err
 	}
 	txe.E.Signatures = append(txe.E.Signatures, *sig)
+
+	return &txe, nil
+}
+
+func (host *hostAccount) createAndSignHtlcTimeoutTx(guestSig *xdr.DecoratedSignature) (*build.TransactionEnvelopeBuilder, error) {
+	tx, err := createHtlcTimeoutTx(host.htlcResolutionAccount.keyPair.Address(), host.selfKeyPair.Address())
+	if err != nil {
+		return nil, err
+	}
+
+	txe, err := tx.Sign(host.escrowKeyPair.Seed())
+	if err != nil {
+		return nil, err
+	}
+	txe.E.Signatures = append(txe.E.Signatures, *guestSig)
 
 	return &txe, nil
 }
