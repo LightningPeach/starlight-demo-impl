@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/sha256"
 	"fmt"
+	"github.com/evgeniy-scherbina/starlight_demo/wire"
 	"github.com/stellar/go/build"
 	"github.com/stellar/go/clients/horizon"
 	"github.com/stellar/go/keypair"
@@ -51,9 +52,9 @@ func (account accountType) String() string {
 }
 
 type hostMessageCache struct {
-	paymentProposeMsg *PaymentProposeMsg
+	paymentProposeMsg *wire.PaymentProposeMsg
 	// paymentAcceptMsg *PaymentAcceptMsg
-	htlcPaymentProposeMsg *HTLCPaymentProposeMsg
+	htlcPaymentProposeMsg *wire.HTLCPaymentProposeMsg
 }
 
 type hostAccount struct {
@@ -494,8 +495,8 @@ func (host *hostAccount) publishTx(txe *build.TransactionEnvelopeBuilder) error 
 	return nil
 }
 
-func (host *hostAccount) createChannelProposeMsg(guestEscrowPubKey string) *ChannelProposeMsg {
-	return &ChannelProposeMsg{
+func (host *hostAccount) createChannelProposeMsg(guestEscrowPubKey string) *wire.ChannelProposeMsg {
+	return &wire.ChannelProposeMsg{
 		ChannelID:             host.escrowKeyPair.Address(),
 		GuestEscrowPubKey:     guestEscrowPubKey,
 		HostRatchetAccount:    host.hostRatchetAccount.keyPair.Address(),
@@ -510,7 +511,7 @@ func (host *hostAccount) createChannelProposeMsg(guestEscrowPubKey string) *Chan
 	}
 }
 
-func (host *hostAccount) createPaymentProposeMsg(roundNumber int, guestAddress string) (*PaymentProposeMsg, error) {
+func (host *hostAccount) createPaymentProposeMsg(roundNumber int, guestAddress string) (*wire.PaymentProposeMsg, error) {
 	rsn := roundSequenceNumber(host.baseSequenceNumber, roundNumber)
 	paymentTime := getBlockChainTime()
 
@@ -524,7 +525,7 @@ func (host *hostAccount) createPaymentProposeMsg(roundNumber int, guestAddress s
 		return nil, err
 	}
 
-	msg := &PaymentProposeMsg{
+	msg := &wire.PaymentProposeMsg{
 		ChannelID:                host.escrowKeyPair.Address(),
 		RoundNumber:              roundNumber,
 		PaymentTime:              paymentTime,
@@ -540,11 +541,11 @@ func (host *hostAccount) createHTLCPaymentProposeMsg(
 	roundNumber int,
 	guestAddress string,
 	rHash [sha256.Size]byte,
-) (*HTLCPaymentProposeMsg, error) {
+) (*wire.HTLCPaymentProposeMsg, error) {
 
 	paymentTime := getBlockChainTime()
 
-	msg := &HTLCPaymentProposeMsg{
+	msg := &wire.HTLCPaymentProposeMsg{
 		ChannelID:             host.escrowKeyPair.Address(),
 		RoundNumber:           roundNumber,
 		PaymentTime:           paymentTime,

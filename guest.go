@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/sha256"
 	"fmt"
+	"github.com/evgeniy-scherbina/starlight_demo/wire"
 	"github.com/stellar/go/build"
 	"github.com/stellar/go/keypair"
 	"github.com/stellar/go/xdr"
@@ -10,7 +11,7 @@ import (
 )
 
 type guestMessageCache struct {
-	channelProposeMsg *ChannelProposeMsg
+	channelProposeMsg *wire.ChannelProposeMsg
 }
 
 type guestAccount struct {
@@ -108,7 +109,7 @@ func (guest *guestAccount) createAndSignHtlcSuccessTx(htlcResolutionAddress stri
 	return &txe, nil
 }
 
-func (guest *guestAccount) receiveChannelProposeMsg(msg *ChannelProposeMsg) (*ChannelAcceptMsg, error) {
+func (guest *guestAccount) receiveChannelProposeMsg(msg *wire.ChannelProposeMsg) (*wire.ChannelAcceptMsg, error) {
 	guest.cache.channelProposeMsg = &*msg
 
 	baseSequenceNumber, err := loadSequenceNumber(msg.ChannelID)
@@ -125,14 +126,14 @@ func (guest *guestAccount) receiveChannelProposeMsg(msg *ChannelProposeMsg) (*Ch
 
 	settleOnlyWithHostTx, err := guest.createAndSignSettleOnlyWithHostTx(msg.FundingTime, 1)
 
-	return &ChannelAcceptMsg{
+	return &wire.ChannelAcceptMsg{
 		ChannelID:                  msg.ChannelID,
 		GuestRatchetRound1Sig:      &ratchetTx.E.Signatures[0],
 		GuestSettleOnlyWithHostSig: &settleOnlyWithHostTx.E.Signatures[0],
 	}, nil
 }
 
-func (guest *guestAccount) receivePaymentProposeMsg(msg *PaymentProposeMsg) (*PaymentAcceptMsg, error) {
+func (guest *guestAccount) receivePaymentProposeMsg(msg *wire.PaymentProposeMsg) (*wire.PaymentAcceptMsg, error) {
 	rsn := roundSequenceNumber(int(guest.baseSequenceNumber), msg.RoundNumber)
 	ratchetTxForOffChainPayment, err := guest.createAndSignRatchetTxForHost(msg.PaymentTime, msg.RoundNumber)
 	if err != nil {
@@ -184,7 +185,7 @@ func (guest *guestAccount) receivePaymentProposeMsg(msg *PaymentProposeMsg) (*Pa
 	//copyTxHost := msg.SenderSettleWithHostSig
 	//copyTxHost.Mutate(build.Sign{Seed: guest.keyPair.Seed()})
 
-	return &PaymentAcceptMsg{
+	return &wire.PaymentAcceptMsg{
 		ChannelID:                   msg.ChannelID,
 		RoundNumber:                 msg.RoundNumber,
 		RecipientRatchetSig:         &ratchetTxForOffChainPayment.E.Signatures[0],
@@ -193,7 +194,7 @@ func (guest *guestAccount) receivePaymentProposeMsg(msg *PaymentProposeMsg) (*Pa
 	}, nil
 }
 
-func (guest *guestAccount) receiveHTLCPaymentProposeMsg(msg *HTLCPaymentProposeMsg) (*HTLCPaymentAcceptMsg, error) {
+func (guest *guestAccount) receiveHTLCPaymentProposeMsg(msg *wire.HTLCPaymentProposeMsg) (*wire.HTLCPaymentAcceptMsg, error) {
 	rsn := roundSequenceNumber(guest.baseSequenceNumber, msg.RoundNumber)
 	ratchetTxForOffChainPayment, err := guest.createAndSignRatchetTxForHost(msg.PaymentTime, msg.RoundNumber)
 	if err != nil {
@@ -227,7 +228,7 @@ func (guest *guestAccount) receiveHTLCPaymentProposeMsg(msg *HTLCPaymentProposeM
 		return nil, err
 	}
 
-	return &HTLCPaymentAcceptMsg{
+	return &wire.HTLCPaymentAcceptMsg{
 		ChannelID:           msg.ChannelID,
 		RoundNumber:         msg.RoundNumber,
 		RecipientRatchetSig: &ratchetTxForOffChainPayment.E.Signatures[0],
