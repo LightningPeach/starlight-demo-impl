@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/stellar/go/build"
+	"github.com/stellar/go/hash"
+	"github.com/stellar/go/strkey"
 )
 
 func createRatchetTx(
@@ -179,6 +181,15 @@ func createSettleOnlyWithHostAndActiveHtlcTx(
 	)
 	fmt.Println("@\n\n ############################################################ @\n\n")
 
+	rPreImage := []byte{
+		42, 42, 42, 42, 42, 42, 42, 42,
+		42, 42, 42, 42, 42, 42, 42, 42,
+		42, 42, 42, 42, 42, 42, 42, 42,
+		42, 42, 42, 42, 42, 42, 42, 42,
+	}
+	rHash := hash.Hash(rPreImage)
+	rHashEncoded := strkey.MustEncode(strkey.VersionByteHashX, rHash[:])
+
 	return build.Transaction(
 		build.TestNetwork,
 		build.SourceAccount{AddressOrSeed: escrowAddress},
@@ -202,9 +213,13 @@ func createSettleOnlyWithHostAndActiveHtlcTx(
 			build.SourceAccount{AddressOrSeed: hostRatchetAddress},
 			build.Destination{AddressOrSeed: hostAddress},
 		),
-		build.AccountMerge(
+		//build.AccountMerge(
+		//	build.SourceAccount{AddressOrSeed: htlcResolutionAddress},
+		//	build.Destination{AddressOrSeed: hostAddress},
+		//),
+		build.SetOptions(
 			build.SourceAccount{AddressOrSeed: htlcResolutionAddress},
-			build.Destination{AddressOrSeed: hostAddress},
+			build.Signer{Address: rHashEncoded, Weight: 1},
 		),
 	)
 }
