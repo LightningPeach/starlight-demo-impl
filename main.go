@@ -179,16 +179,29 @@ func main() {
 			log.Fatal(err)
 		}
 
-		htlcTimeoutTxe, err := hostAccount.createAndSignHtlcTimeoutTx(paymentAcceptMsg.RecipientHtlcTimeoutSig)
+		//htlcTimeoutTxe, err := hostAccount.createAndSignHtlcTimeoutTx(paymentAcceptMsg.RecipientHtlcTimeoutSig)
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
+		//
+		//fmt.Println(loadBalance(hostAccount.htlcResolutionAccount.keyPair.Address()))
+		//
+		//fmt.Println("publish htlcTimeoutTxe")
+		//if err := hostAccount.publishTx(htlcTimeoutTxe); err != nil {
+		//	showDetailError(err)
+		//	log.Fatal(err)
+		//}
+
+
+		htlcSuccessTx, err := guestAccount.createAndSignHtlcSuccessTx(hostAccount.htlcResolutionAccount.keyPair.Address())
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		fmt.Println(loadBalance(hostAccount.htlcResolutionAccount.keyPair.Address()))
-		// time.Sleep(time.Second * 5)
 
-		fmt.Println("publish htlcTimeoutTxe")
-		if err := hostAccount.publishTx(htlcTimeoutTxe); err != nil {
+		fmt.Println("publish htlcSuccessTx")
+		if err := hostAccount.publishTx(htlcSuccessTx); err != nil {
 			showDetailError(err)
 			log.Fatal(err)
 		}

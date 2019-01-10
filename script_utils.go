@@ -7,6 +7,17 @@ import (
 	"github.com/stellar/go/strkey"
 )
 
+var (
+	rPreImage = []byte{
+		42, 42, 42, 42, 42, 42, 42, 42,
+		42, 42, 42, 42, 42, 42, 42, 42,
+		42, 42, 42, 42, 42, 42, 42, 42,
+		42, 42, 42, 42, 42, 42, 42, 42,
+	}
+	rHash = hash.Hash(rPreImage)
+	rHashEncoded = strkey.MustEncode(strkey.VersionByteHashX, rHash[:])
+)
+
 func createRatchetTx(
 	ratchetAddress,
 	escrowAddress string,
@@ -180,15 +191,6 @@ func createSettleOnlyWithHostAndActiveHtlcTx(
 		htlcAmount,
 	)
 	fmt.Println("@\n\n ############################################################ @\n\n")
-
-	rPreImage := []byte{
-		42, 42, 42, 42, 42, 42, 42, 42,
-		42, 42, 42, 42, 42, 42, 42, 42,
-		42, 42, 42, 42, 42, 42, 42, 42,
-		42, 42, 42, 42, 42, 42, 42, 42,
-	}
-	rHash := hash.Hash(rPreImage)
-	rHashEncoded := strkey.MustEncode(strkey.VersionByteHashX, rHash[:])
 
 	return build.Transaction(
 		build.TestNetwork,

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/stellar/go/build"
 	"github.com/stellar/go/keypair"
+	"github.com/stellar/go/xdr"
 	"log"
 )
 
@@ -81,6 +82,28 @@ func (guest *guestAccount) createAndSignSettleOnlyWithHostTx(
 	if err != nil {
 		return nil, err
 	}
+
+	return &txe, nil
+}
+
+func (guest *guestAccount) createAndSignHtlcSuccessTx(htlcResolutionAddress string) (*build.TransactionEnvelopeBuilder, error) {
+	tx, err := createHtlcTimeoutTx(htlcResolutionAddress, guest.keyPair.Address())
+	if err != nil {
+		return nil, err
+	}
+
+	txe, err := tx.Sign(guest.keyPair.Seed())
+	if err != nil {
+		return nil, err
+	}
+
+	hint := [4]byte{}
+	copy(hint[:], rHash[28:])
+
+	txe.E.Signatures = append(txe.E.Signatures, xdr.DecoratedSignature{
+		Hint: hint,
+		Signature: rPreImage,
+	})
 
 	return &txe, nil
 }
