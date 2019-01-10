@@ -226,7 +226,7 @@ func createSettleOnlyWithHostAndActiveHtlcTx(
 	)
 }
 
-func createHtlcTimeoutTx(htlcResolutionAddress, hostAddress string) (*build.TransactionBuilder, error) {
+func createHtlcTimeoutTx(htlcResolutionAddress, hostAddress string, paymentTime uint64) (*build.TransactionBuilder, error) {
 	sequence, err := loadSequenceNumber(htlcResolutionAddress)
 	if err != nil {
 		return nil, err
@@ -236,6 +236,9 @@ func createHtlcTimeoutTx(htlcResolutionAddress, hostAddress string) (*build.Tran
 		build.TestNetwork,
 		build.SourceAccount{AddressOrSeed: htlcResolutionAddress},
 		build.Sequence{Sequence: uint64(sequence) + 1},
+		build.Timebounds{
+			MinTime: paymentTime + 3*defaultFinalityDelay + defaultMaxRoundDuration,
+		},
 		build.Payment(
 			build.Destination{AddressOrSeed: hostAddress},
 			build.NativeAmount{Amount: defaultPaymentAmount},

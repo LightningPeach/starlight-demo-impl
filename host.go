@@ -465,8 +465,8 @@ func (host *hostAccount) createAndSignSettleOnlyWithHostAndActiveHtlcTx(
 	return &txe, nil
 }
 
-func (host *hostAccount) createAndSignHtlcTimeoutTx(guestSig *xdr.DecoratedSignature) (*build.TransactionEnvelopeBuilder, error) {
-	tx, err := createHtlcTimeoutTx(host.htlcResolutionAccount.keyPair.Address(), host.selfKeyPair.Address())
+func (host *hostAccount) createAndSignHtlcTimeoutTx(guestSig *xdr.DecoratedSignature, paymentTime uint64) (*build.TransactionEnvelopeBuilder, error) {
+	tx, err := createHtlcTimeoutTx(host.htlcResolutionAccount.keyPair.Address(), host.selfKeyPair.Address(), paymentTime)
 	if err != nil {
 		return nil, err
 	}

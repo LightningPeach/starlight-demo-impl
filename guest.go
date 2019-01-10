@@ -86,8 +86,8 @@ func (guest *guestAccount) createAndSignSettleOnlyWithHostTx(
 	return &txe, nil
 }
 
-func (guest *guestAccount) createAndSignHtlcSuccessTx(htlcResolutionAddress string) (*build.TransactionEnvelopeBuilder, error) {
-	tx, err := createHtlcTimeoutTx(htlcResolutionAddress, guest.keyPair.Address())
+func (guest *guestAccount) createAndSignHtlcSuccessTx(htlcResolutionAddress string, paymentTime uint64) (*build.TransactionEnvelopeBuilder, error) {
+	tx, err := createHtlcTimeoutTx(htlcResolutionAddress, guest.keyPair.Address(), paymentTime)
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +218,7 @@ func (guest *guestAccount) receiveHTLCPaymentProposeMsg(msg *HTLCPaymentProposeM
 		return nil, err
 	}
 
-	htlcTimeoutTx, err := createHtlcTimeoutTx(msg.HtlcResolutionAddress, guest.cache.channelProposeMsg.HostAccount)
+	htlcTimeoutTx, err := createHtlcTimeoutTx(msg.HtlcResolutionAddress, guest.cache.channelProposeMsg.HostAccount, msg.PaymentTime)
 	if err != nil {
 		return nil, err
 	}

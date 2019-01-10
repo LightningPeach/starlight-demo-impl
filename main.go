@@ -13,7 +13,8 @@ import (
 func main() {
 	unilateralClose := flag.Bool("unilateral_close", false, "")
 	payment := flag.Bool("payment", false, "")
-	htlcPayment := flag.Bool("htlc_payment", false, "")
+	htlcTimeoutPayment := flag.Bool("htlc_timeout_payment", false, "")
+	htlcSuccessPayment := flag.Bool("htlc_success_payment", false, "")
 	flag.Parse()
 
 	fmt.Println("starlight_demo")
@@ -134,7 +135,7 @@ func main() {
 		return
 	}
 
-	if *htlcPayment {
+	if *htlcTimeoutPayment || *htlcSuccessPayment {
 		rHash := guestAccount.addInvoice()
 		fmt.Printf("hex-encoded rHash: %v\n", hex.EncodeToString(rHash[:]))
 
@@ -155,7 +156,7 @@ func main() {
 		}
 
 
-		secsToWait := 2*defaultFinalityDelay + defaultMaxRoundDuration + 10
+		secsToWait := 2*defaultFinalityDelay + defaultMaxRoundDuration + 1
 		fmt.Printf("waiting %v secs until settlement's txs will become valid\n", secsToWait)
 		time.Sleep(time.Duration(secsToWait) * time.Second)
 
@@ -179,31 +180,42 @@ func main() {
 			log.Fatal(err)
 		}
 
-		//htlcTimeoutTxe, err := hostAccount.createAndSignHtlcTimeoutTx(paymentAcceptMsg.RecipientHtlcTimeoutSig)
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//
-		//fmt.Println(loadBalance(hostAccount.htlcResolutionAccount.keyPair.Address()))
-		//
-		//fmt.Println("publish htlcTimeoutTxe")
-		//if err := hostAccount.publishTx(htlcTimeoutTxe); err != nil {
-		//	showDetailError(err)
-		//	log.Fatal(err)
-		//}
+		if *htlcTimeoutPayment {
+			htlcTimeoutTxe, err := hostAccount.createAndSignHtlcTimeoutTx(
+				paymentAcceptMsg.RecipientHtlcTimeoutSig,
+				paymentProposeMsg.PaymentTime,
+			)
+			if err != nil {
+				log.Fatal(err)
+			}
 
+			fmt.Println(loadBalance(hostAccount.htlcResolutionAccount.keyPair.Address()))
+			fmt.Printf("sleep %v secs for htlcTimeout become valid\n", defaultFinalityDelay)
+			time.Sleep(time.Second * defaultFinalityDelay)
 
-		htlcSuccessTx, err := guestAccount.createAndSignHtlcSuccessTx(hostAccount.htlcResolutionAccount.keyPair.Address())
-		if err != nil {
-			log.Fatal(err)
+			fmt.Println("publish htlcTimeoutTxe")
+			if err := hostAccount.publishTx(htlcTimeoutTxe); err != nil {
+				showDetailError(err)
+				log.Fatal(err)
+			}
 		}
 
-		fmt.Println(loadBalance(hostAccount.htlcResolutionAccount.keyPair.Address()))
+		if *htlcSuccessPayment {
+			htlcSuccessTx, err := guestAccount.createAndSignHtlcSuccessTx(
+				hostAccount.htlcResolutionAccount.keyPair.Address(),
+				paymentProposeMsg.PaymentTime,
+			)
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		fmt.Println("publish htlcSuccessTx")
-		if err := hostAccount.publishTx(htlcSuccessTx); err != nil {
-			showDetailError(err)
-			log.Fatal(err)
+			fmt.Println(loadBalance(hostAccount.htlcResolutionAccount.keyPair.Address()))
+
+			fmt.Println("publish htlcSuccessTx")
+			if err := hostAccount.publishTx(htlcSuccessTx); err != nil {
+				showDetailError(err)
+				log.Fatal(err)
+			}
 		}
 
 		fmt.Printf("host account's balance(after force close): %v\n\n", hostAccount.loadBalance())
