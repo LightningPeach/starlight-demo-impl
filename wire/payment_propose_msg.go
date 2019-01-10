@@ -2,6 +2,7 @@ package wire
 
 import (
 	"fmt"
+
 	"github.com/stellar/go/xdr"
 )
 

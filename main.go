@@ -4,8 +4,6 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
-	//"github.com/stellar/go/build"
-	//"github.com/stellar/go/clients/horizon"
 	"log"
 	"time"
 )
@@ -75,7 +73,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		time.Sleep((2*defaultFinalityDelay + defaultMaxRoundDuration) * time.Second + 10 * time.Second)
+		time.Sleep((2*defaultFinalityDelay+defaultMaxRoundDuration)*time.Second + 10*time.Second)
 		fmt.Println("time.Now(): ", time.Now().Unix())
 
 		fmt.Println("publish settleOnlyWithHostTx")
@@ -104,7 +102,6 @@ func main() {
 		if err := hostAccount.publishRatchetTx(paymentAcceptMsg.RecipientRatchetSig); err != nil {
 			log.Fatal(err)
 		}
-
 
 		secsToWait := 2*defaultFinalityDelay + defaultMaxRoundDuration + 10
 		fmt.Printf("waiting %v secs until settlement's txs will become valid", secsToWait)
@@ -154,7 +151,6 @@ func main() {
 		if err := hostAccount.publishRatchetTx(paymentAcceptMsg.RecipientRatchetSig); err != nil {
 			log.Fatal(err)
 		}
-
 
 		secsToWait := 2*defaultFinalityDelay + defaultMaxRoundDuration + 1
 		fmt.Printf("waiting %v secs until settlement's txs will become valid\n", secsToWait)
