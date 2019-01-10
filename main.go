@@ -16,7 +16,6 @@ func main() {
 	flag.Parse()
 
 	fmt.Println("starlight_demo")
-
 	hostAccount, err := newHostAccount()
 	if err != nil {
 		log.Fatal(err)
@@ -73,8 +72,9 @@ func main() {
 			log.Fatal(err)
 		}
 
-		time.Sleep((2*defaultFinalityDelay+defaultMaxRoundDuration)*time.Second + 10*time.Second)
-		fmt.Println("time.Now(): ", time.Now().Unix())
+		secsToWait := 2*defaultFinalityDelay + defaultMaxRoundDuration + 1
+		fmt.Printf("waiting %v secs until settlement's txs will become valid", secsToWait)
+		time.Sleep(time.Duration(secsToWait) * time.Second)
 
 		fmt.Println("publish settleOnlyWithHostTx")
 		if err := hostAccount.settleOnlyWithHostTx(channelAcceptMsg.GuestSettleOnlyWithHostSig, channelProposeMsg.FundingTime); err != nil {
