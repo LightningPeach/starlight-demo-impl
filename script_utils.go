@@ -223,3 +223,15 @@ func createSettleOnlyWithHostAndActiveHtlcTx(
 		),
 	)
 }
+
+func createHtlcTimeoutTx(htlcResolutionAddress, hostAddress string) (*build.TransactionBuilder, error) {
+	tx, err := build.Transaction(
+		build.TestNetwork,
+		build.SourceAccount{AddressOrSeed: htlcResolutionAddress},
+		build.Payment(
+			build.Destination{AddressOrSeed: hostAddress},
+			build.NativeAmount{Amount: defaultPaymentAmount},
+		),
+	)
+	return tx, err
+}
