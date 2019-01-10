@@ -230,14 +230,14 @@ func (host *hostAccount) publishFundingTx(guestEscrowPubKey string) error {
 			build.SetThresholds(3, 3, 3),
 			build.Signer{
 				Address: host.escrowKeyPair.Address(),
-				Weight: 1,
+				Weight:  1,
 			},
 		),
 		build.SetOptions(
 			build.SourceAccount{AddressOrSeed: host.htlcResolutionAccount.keyPair.Address()},
 			build.Signer{
 				Address: guestEscrowPubKey,
-				Weight: 2,
+				Weight:  2,
 			},
 		),
 	)
@@ -441,7 +441,7 @@ func (host *hostAccount) createAndSignSettleOnlyWithHostAndActiveHtlcTx(
 	paymentTime uint64,
 	sig *xdr.DecoratedSignature,
 ) (*build.TransactionEnvelopeBuilder, error) {
-		
+
 	tx, err := createSettleOnlyWithHostAndActiveHtlcTx(
 		host.selfKeyPair.Address(),
 		host.escrowKeyPair.Address(),
@@ -530,11 +530,12 @@ func (host *hostAccount) createHTLCPaymentProposeMsg(
 	paymentTime := getBlockChainTime()
 
 	msg := &HTLCPaymentProposeMsg{
-		ChannelID:     host.escrowKeyPair.Address(),
-		RoundNumber:   roundNumber,
-		PaymentTime:   paymentTime,
-		PaymentAmount: defaultPaymentAmount,
-		RHash:         rHash,
+		ChannelID:             host.escrowKeyPair.Address(),
+		RoundNumber:           roundNumber,
+		PaymentTime:           paymentTime,
+		PaymentAmount:         defaultPaymentAmount,
+		RHash:                 rHash,
+		HtlcResolutionAddress: host.htlcResolutionAccount.keyPair.Address(),
 	}
 	host.cache.htlcPaymentProposeMsg = msg
 	return msg, nil

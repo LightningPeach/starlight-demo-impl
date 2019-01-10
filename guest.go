@@ -195,11 +195,21 @@ func (guest *guestAccount) receiveHTLCPaymentProposeMsg(msg *HTLCPaymentProposeM
 		return nil, err
 	}
 
+	htlcTimeoutTx, err := createHtlcTimeoutTx(msg.HtlcResolutionAddress, guest.cache.channelProposeMsg.HostAccount)
+	if err != nil {
+		return nil, err
+	}
+	htlcTimeoutTxe, err := htlcTimeoutTx.Sign(guest.keyPair.Seed())
+	if err != nil {
+		return nil, err
+	}
+
 	return &HTLCPaymentAcceptMsg{
 		ChannelID:           msg.ChannelID,
 		RoundNumber:         msg.RoundNumber,
 		RecipientRatchetSig: &ratchetTxForOffChainPayment.E.Signatures[0],
 		RecipientSettleOnlyWithHostAndActiveHtlcSig: &txe.E.Signatures[0],
+		RecipientHtlcTimeoutSig:                     &htlcTimeoutTxe.E.Signatures[0],
 	}, nil
 }
 
