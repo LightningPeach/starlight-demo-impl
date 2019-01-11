@@ -100,7 +100,7 @@ func main() {
 		}
 		fmt.Println(paymentAcceptMsg)
 
-		if err := hostAccount.publishRatchetTx(paymentAcceptMsg.RecipientRatchetSig); err != nil {
+		if err := hostAccount.publishRatchetTx(paymentAcceptMsg.RecipientRatchetSig, paymentState); err != nil {
 			log.Fatal(err)
 		}
 
@@ -149,7 +149,7 @@ func main() {
 		}
 		fmt.Println(paymentAcceptMsg)
 
-		if err := hostAccount.publishRatchetTx(paymentAcceptMsg.RecipientRatchetSig); err != nil {
+		if err := hostAccount.publishRatchetTx(paymentAcceptMsg.RecipientRatchetSig, htlcPaymentState); err != nil {
 			log.Fatal(err)
 		}
 

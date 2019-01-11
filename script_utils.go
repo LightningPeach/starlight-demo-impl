@@ -117,7 +117,7 @@ func createSettleWithHostTx(
 	escrowAddress,
 	guestRatchetAddress,
 	hostRatchetAddress,
-	hostAddress,
+	hostAddress string,
 	htlcResolutionAddress string,
 ) (*build.TransactionBuilder, error) {
 

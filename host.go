@@ -51,6 +51,14 @@ func (account accountType) String() string {
 	}
 }
 
+type state uint8
+
+const (
+	fundingState state = iota
+	paymentState
+	htlcPaymentState
+)
+
 type hostMessageCache struct {
 	paymentProposeMsg *wire.PaymentProposeMsg
 	// paymentAcceptMsg *PaymentAcceptMsg
@@ -263,12 +271,24 @@ func (host *hostAccount) publishFundingTx(guestEscrowPubKey string) error {
 
 func (host *hostAccount) cleanupTx() {}
 
-func (host *hostAccount) publishRatchetTx(sig *xdr.DecoratedSignature) error {
+func (host *hostAccount) publishRatchetTx(sig *xdr.DecoratedSignature, state state) error {
 	fmt.Println("publish ratchet tx")
+	var (
+		paymentTime uint64
+		roundNumber int
+	)
+	switch state {
+	case paymentState:
+		paymentTime = host.cache.paymentProposeMsg.PaymentTime
+		roundNumber = host.cache.paymentProposeMsg.RoundNumber
+	case htlcPaymentState:
+		paymentTime = host.cache.htlcPaymentProposeMsg.PaymentTime
+		roundNumber = host.cache.htlcPaymentProposeMsg.RoundNumber
+	}
 	tx, err := host.createAndSignRatchetTxForSelf(
 		sig,
-		host.cache.htlcPaymentProposeMsg.PaymentTime,
-		roundSequenceNumber(host.baseSequenceNumber, host.cache.htlcPaymentProposeMsg.RoundNumber),
+		paymentTime,
+		roundSequenceNumber(host.baseSequenceNumber, roundNumber),
 	)
 	if err != nil {
 		return err
