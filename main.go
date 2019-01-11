@@ -73,7 +73,8 @@ func main() {
 		}
 
 		secsToWait := 2*defaultFinalityDelay + defaultMaxRoundDuration + 1
-		fmt.Printf("waiting %v secs until settlement's txs will become valid", secsToWait)
+		explanation := "2*defaultFinalityDelay + defaultMaxRoundDuration + 1"
+		fmt.Printf("waiting %v secs(%v) until settlement's txs will become valid\n", secsToWait, explanation)
 		time.Sleep(time.Duration(secsToWait) * time.Second)
 
 		fmt.Println("publish settleOnlyWithHostTx")
