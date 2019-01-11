@@ -15,6 +15,10 @@ func main() {
 	htlcSuccessPayment := flag.Bool("htlc_success_payment", false, "")
 	flag.Parse()
 
+	if *htlcTimeoutPayment || *htlcSuccessPayment {
+		htlcMode = true
+	}
+
 	fmt.Println("starlight_demo")
 	hostAccount, err := newHostAccount()
 	if err != nil {

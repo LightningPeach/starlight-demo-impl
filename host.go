@@ -23,6 +23,8 @@ const (
 	feeRate = baseFee
 )
 
+var htlcMode bool
+
 func getBlockChainTime() uint64 {
 	return uint64(time.Now().Unix())
 }
@@ -173,7 +175,7 @@ func (host *hostAccount) publishFundingTx(guestEscrowPubKey string) error {
 	host.guestAddress = guestEscrowPubKey
 	fundingTime := getBlockChainTime()
 
-	tx, err := build.Transaction(
+	mutations := []build.TransactionMutator{
 		build.TestNetwork,
 		build.SourceAccount{AddressOrSeed: host.selfKeyPair.Address()},
 		build.Sequence{Sequence: uint64(host.loadSequenceNumber()) + 1},
@@ -228,40 +230,51 @@ func (host *hostAccount) publishFundingTx(guestEscrowPubKey string) error {
 				Weight:  1,
 			},
 		),
-		// htlcResolutionAccountType
-		build.Payment(
-			build.Destination{AddressOrSeed: host.htlcResolutionAccount.keyPair.Address()},
-			build.NativeAmount{Amount: "1.5"},
-		),
-		build.SetOptions(
-			build.SourceAccount{AddressOrSeed: host.htlcResolutionAccount.keyPair.Address()},
-			build.MasterWeight(0),
-			build.SetThresholds(3, 3, 3),
-			build.Signer{
-				Address: host.escrowKeyPair.Address(),
-				Weight:  1,
-			},
-		),
-		build.SetOptions(
-			build.SourceAccount{AddressOrSeed: host.htlcResolutionAccount.keyPair.Address()},
-			build.Signer{
-				Address: guestEscrowPubKey,
-				Weight:  2,
-			},
-		),
-	)
+	}
+
+	if htlcMode {
+		mutations = append(mutations,
+			// htlcResolutionAccountType
+			build.Payment(
+				build.Destination{AddressOrSeed: host.htlcResolutionAccount.keyPair.Address()},
+				build.NativeAmount{Amount: "1.5"},
+			),
+			build.SetOptions(
+				build.SourceAccount{AddressOrSeed: host.htlcResolutionAccount.keyPair.Address()},
+				build.MasterWeight(0),
+				build.SetThresholds(3, 3, 3),
+				build.Signer{
+					Address: host.escrowKeyPair.Address(),
+					Weight:  1,
+				},
+			),
+			build.SetOptions(
+				build.SourceAccount{AddressOrSeed: host.htlcResolutionAccount.keyPair.Address()},
+				build.Signer{
+					Address: guestEscrowPubKey,
+					Weight:  2,
+				},
+			),
+		)
+	}
+
+	tx, err := build.Transaction(mutations...)
 	if err != nil {
 		return err
 	}
 
 	// Sign the transaction to prove you are actually the person sending it.
-	txe, err := tx.Sign(
+	signers := []string{
 		host.selfKeyPair.Seed(),
 		host.escrowKeyPair.Seed(),
 		host.hostRatchetAccount.keyPair.Seed(),
 		host.guestRatchetAccount.keyPair.Seed(),
-		host.htlcResolutionAccount.keyPair.Seed(),
-	)
+	}
+	if htlcMode {
+		signers = append(signers, host.htlcResolutionAccount.keyPair.Seed())
+	}
+
+	txe, err := tx.Sign(signers...)
 	if err != nil {
 		return err
 	}
@@ -450,7 +463,12 @@ func (host *hostAccount) createAndSignSettleWithHostTx(rsn, paymentTime uint64) 
 		return nil, err
 	}
 
-	txe, err := tx.Sign(host.escrowKeyPair.Seed(), host.htlcResolutionAccount.keyPair.Seed())
+	signers := []string{host.escrowKeyPair.Seed()}
+	if htlcMode {
+		signers = append(signers, host.htlcResolutionAccount.keyPair.Seed())
+	}
+
+	txe, err := tx.Sign(signers...)
 	if err != nil {
 		return nil, err
 	}

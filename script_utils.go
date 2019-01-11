@@ -121,7 +121,7 @@ func createSettleWithHostTx(
 	htlcResolutionAddress string,
 ) (*build.TransactionBuilder, error) {
 
-	tx, err := build.Transaction(
+	mutations := []build.TransactionMutator{
 		build.TestNetwork,
 		build.SourceAccount{AddressOrSeed: escrowAddress},
 		build.Sequence{Sequence: rsn + 3},
@@ -143,11 +143,18 @@ func createSettleWithHostTx(
 			build.SourceAccount{AddressOrSeed: hostRatchetAddress},
 			build.Destination{AddressOrSeed: hostAddress},
 		),
-		build.AccountMerge(
-			build.SourceAccount{AddressOrSeed: htlcResolutionAddress},
-			build.Destination{AddressOrSeed: hostAddress},
-		),
-	)
+	}
+
+	if htlcMode {
+		mutations = append(mutations,
+			build.AccountMerge(
+				build.SourceAccount{AddressOrSeed: htlcResolutionAddress},
+				build.Destination{AddressOrSeed: hostAddress},
+			),
+		)
+	}
+
+	tx, err := build.Transaction(mutations...)
 	if err != nil {
 		return nil, err
 	}
